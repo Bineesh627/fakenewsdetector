@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Prediction Result</h1>
+<div>
+    <h3>Analyzed Text:</h3>
+    <p>{{ pred.text|linebreaks }}</p>
+    
+    <h3>Result:</h3>
+    <p class="{% if pred.prediction == 'Real' %}prediction-real{% else %}prediction-fake{% endif %}" style="font-size: 1.5em;">
+        {{ pred.prediction }}
+    </p>
+    <p>Confidence: {{ pred.confidence|floatformat:4 }}</p>
+</div>
+
+<hr>
+<p>Is this result incorrect?</p>
+<a href="{% url 'feedback' pred.id %}"><button>Mark as Wrong (Trash)</button></a>
+<a href="{% url 'home' %}"><button>Back to Home</button></a>
+{% endblock %}
