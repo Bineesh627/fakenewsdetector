@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TruthGuard Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        :root {
+            --success: 34, 197, 94;
+            --destructive: 239, 68, 68;
+            /* Sidebar Variables */
+
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9fafb;
+            margin: 0; /* Reset margin */
+        }
+
+        .text-success { color: rgb(var(--success)); }
+        .bg-success { background-color: rgb(var(--success)); }
+        .bg-success-soft { background-color: rgba(var(--success), 0.1); }
+        
+        .text-destructive { color: rgb(var(--destructive)); }
+        .bg-destructive { background-color: rgb(var(--destructive)); }
+        .bg-destructive-soft { background-color: rgba(var(--destructive), 0.1); }
+
+        .line-clamp-1 {
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;  
+            overflow: hidden;
+        }
+
+
+    </style>
+    <!-- Sidebar CSS -->
+    <link rel="stylesheet" href="css/Sidebar.css">
+    
+    <!-- Bootstrap 5 CSS & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar">
+        <!-- Collapse Button -->
+        <button id="sidebarToggle" class="toggle-btn" aria-label="Toggle Sidebar">
+            <i class="bi bi-chevron-left" id="toggleIcon"></i>
+        </button>
+
+        <!-- Header -->
+        <div class="sidebar-header">
+            <a href="/admin" class="text-decoration-none d-flex align-items-center gap-3">
+                <div class="logo-box">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+                <div class="brand-text">
+                    <div class="fw-bold fs-6 text-dark">TruthGuard</div>
+                    <div class="text-muted" style="font-size: 0.75rem;">Admin Panel</div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="sidebar-nav">
+            <a href="/admin" class="nav-link active" onclick="setActive(this)">
+                <i class="bi bi-speedometer2"></i>
+                <span class="link-text">Dashboard</span>
+            </a>
+            <a href="/admin/users" class="nav-link" onclick="setActive(this)">
+                <i class="bi bi-people"></i>
+                <span class="link-text">Users</span>
+            </a>
+            <a href="/admin/predictions" class="nav-link" onclick="setActive(this)">
+                <i class="bi bi-file-text"></i>
+                <span class="link-text">Predictions</span>
+            </a>
+            <a href="/admin/feedback" class="nav-link" onclick="setActive(this)">
+                <i class="bi bi-chat-square-text"></i>
+                <span class="link-text">Feedback</span>
+            </a>
+            <a href="/admin/logs" class="nav-link" onclick="setActive(this)">
+                <i class="bi bi-activity"></i>
+                <span class="link-text">Activity Logs</span>
+            </a>
+            <a href="/admin/settings" class="nav-link" onclick="setActive(this)">
+                <i class="bi bi-gear"></i>
+                <span class="link-text">Settings</span>
+            </a>
+        </nav>
+
+        <!-- User Section -->
+        <div class="user-section">
+            <div class="user-profile">
+                <div class="avatar-circle">
+                    <span id="userInitial">A</span>
+                </div>
+                <div class="user-info d-flex flex-column" style="min-width: 0;">
+                    <span class="fw-medium text-dark text-truncate" id="userName" style="font-size: 0.875rem;">Loading...</span>
+                    <span class="text-muted text-truncate" id="userEmail" style="font-size: 0.75rem;">Loading...</span>
+                </div>
+            </div>
+            
+            <a href="/" class="logout-btn text-decoration-none">
+                <i class="bi bi-box-arrow-right" style="width: 1.25rem; text-align: center;"></i>
+                <span class="logout-text ms-2" style="font-size: 0.875rem;">Back to Site</span>
+            </a>
+        </div>
+    </aside>
+
+    <main id="mainContent" class="main-content">
+    <div class="max-w-7xl mx-auto space-y-8">
+        
+        <!-- Header -->
+        <header>
+            <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
+            <p class="text-gray-500 mt-1">Welcome back! Here's what's happening with TruthGuard.</p>
+        </header>
+
+        <!-- Stats Grid -->
+        <div id="stats-grid" class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Cards injected by JS -->
+        </div>
+
+        <!-- Charts and Activity -->
+        <div class="grid lg:grid-cols-2 gap-6">
+            <!-- Prediction Distribution -->
+            <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                <h2 class="text-lg font-semibold text-gray-900 mb-6">Prediction Distribution</h2>
+                <div id="distribution-container" class="space-y-6">
+                    <!-- Progress bars injected by JS -->
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold text-gray-900">Recent Activity</h2>
+                    <button class="text-sm font-medium text-gray-500 hover:text-gray-700 px-3 py-1 rounded-md hover:bg-gray-100 transition-colors">View All</button>
+                </div>
+                <div id="activity-logs" class="space-y-1">
+                    <!-- Logs injected by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Predictions Table -->
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <div class="p-6 border-b border-gray-200 flex items-center justify-between">
+                <h2 class="text-lg font-semibold text-gray-900">Recent Predictions</h2>
+                <button class="px-4 py-2 text-sm font-medium border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                    View All
+                </button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                            <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Text</th>
+                            <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Result</th>
+                            <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Confidence</th>
+                            <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Votes</th>
+                            <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="predictions-body" class="divide-y divide-gray-200">
+                        <!-- Table rows injected by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mock Data
+        const mockPredictions = [
+            { id: '1', text: 'Scientists discover new species of deep-sea fish with bioluminescent properties in the Mariana Trench.', prediction: 'Real', confidence: 0.94, votesUp: 45, votesDown: 3, createdAt: '2024-01-15' },
+            { id: '2', text: 'BREAKING: Government secretly installing mind-control chips in all new smartphones.', prediction: 'Fake', confidence: 0.98, votesUp: 12, votesDown: 156, createdAt: '2024-01-14' },
+            { id: '3', text: 'Climate report shows significant reduction in Arctic ice coverage over the past decade.', prediction: 'Real', confidence: 0.89, votesUp: 78, votesDown: 5, createdAt: '2024-01-13' },
+            { id: '4', text: 'Local bakery wins international award for their innovative sourdough bread recipe.', prediction: 'Real', confidence: 0.76, votesUp: 23, votesDown: 8, createdAt: '2024-01-12' },
+            { id: '5', text: 'Miracle cure found! Drinking lemon water before bed eliminates all diseases.', prediction: 'Fake', confidence: 0.99, votesUp: 2, votesDown: 234, createdAt: '2024-01-11' }
+        ];
+
+        const mockActivityLogs = [
+            { id: '1', details: 'User submitted new article for analysis', createdAt: '2024-01-15T10:30:00' },
+            { id: '2', details: 'User upvoted prediction #1', createdAt: '2024-01-15T11:00:00' },
+            { id: '3', details: 'User flagged prediction #4 as incorrect', createdAt: '2024-01-14T15:20:00' },
+            { id: '4', details: 'User logged in successfully', createdAt: '2024-01-14T09:00:00' },
+            { id: '5', details: 'User submitted new article for analysis', createdAt: '2024-01-13T14:45:00' }
+        ];
+
+        // Initialization
+        window.onload = () => {
+            renderStats();
+            renderDistribution();
+            renderActivity();
+            renderPredictions();
+            lucide.createIcons();
+        };
+
+        function renderStats() {
+            const container = document.getElementById('stats-grid');
+            const stats = [
+                { title: 'Total Predictions', value: mockPredictions.length, icon: 'file-text', trend: 12 },
+                { title: 'Active Users', value: 4, icon: 'users', trend: 8 },
+                { title: 'Pending Feedback', value: 2, icon: 'message-square' },
+                { title: 'Accuracy Rate', value: '94%', icon: 'trending-up', trend: 2 }
+            ];
+
+            container.innerHTML = stats.map(stat => `
+                <div class="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-all duration-200">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500 font-medium">${stat.title}</p>
+                            <p class="text-3xl font-bold text-gray-900 mt-1">${stat.value}</p>
+                            ${stat.trend ? `
+                                <p class="text-sm mt-2 font-medium text-success">
+                                    ↑ ${stat.trend}% from last week
+                                </p>` : `<p class="text-sm mt-2 font-medium text-gray-400">Stable this week</p>`}
+                        </div>
+                        <div class="p-3 rounded-lg bg-blue-50">
+                            <i data-lucide="${stat.icon}" class="h-6 w-6 text-blue-600"></i>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderDistribution() {
+            const total = mockPredictions.length;
+            const real = mockPredictions.filter(p => p.prediction === 'Real').length;
+            const fake = mockPredictions.filter(p => p.prediction === 'Fake').length;
+            
+            const container = document.getElementById('distribution-container');
+            const items = [
+                { label: 'Real', count: real, color: 'success', icon: 'check-circle' },
+                { label: 'Fake', count: fake, color: 'destructive', icon: 'x-circle' }
+            ];
+
+            container.innerHTML = items.map(item => {
+                const percent = Math.round((item.count / total) * 100);
+                return `
+                <div>
+                    <div class="flex justify-between text-sm mb-2">
+                        <span class="flex items-center gap-2 font-medium text-gray-700">
+                            <i data-lucide="${item.icon}" class="h-4 w-4 text-${item.color}"></i>
+                            ${item.label}
+                        </span>
+                        <span class="font-bold text-gray-900">${item.count} (${percent}%)</span>
+                    </div>
+                    <div class="h-3 bg-gray-100 rounded-full overflow-hidden">
+                        <div class="h-full bg-${item.color} rounded-full" style="width: ${percent}%"></div>
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        function renderActivity() {
+            const container = document.getElementById('activity-logs');
+            container.innerHTML = mockActivityLogs.map(log => `
+                <div class="flex items-start gap-4 py-3 border-b border-gray-100 last:border-0 hover:bg-gray-50 px-2 rounded-lg transition-colors">
+                    <div class="p-2 rounded-md bg-blue-50">
+                        <i data-lucide="clock" class="h-4 w-4 text-blue-600"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm text-gray-800 truncate font-medium">${log.details}</p>
+                        <p class="text-xs text-gray-400 mt-0.5">${new Date(log.createdAt).toLocaleString()}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderPredictions() {
+            const body = document.getElementById('predictions-body');
+            body.innerHTML = mockPredictions.map(pred => `
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4">
+                        <p class="text-sm text-gray-900 line-clamp-1 max-w-xs">${pred.text}</p>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+                            pred.prediction === 'Real' 
+                            ? 'bg-green-50 text-green-700 border-green-100' 
+                            : 'bg-red-50 text-red-700 border-red-100'
+                        }">
+                            ${pred.prediction}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-500 font-medium">
+                        ${Math.round(pred.confidence * 100)}%
+                    </td>
+                    <td class="px-6 py-4 text-sm">
+                        <span class="text-success font-semibold">↑${pred.votesUp}</span>
+                        <span class="text-gray-300 mx-1">/</span>
+                        <span class="text-destructive font-semibold">↓${pred.votesDown}</span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-500">
+                        ${new Date(pred.createdAt).toLocaleDateString()}
+                    </td>
+                </tr>
+            `).join('');
+        }
+    </script>
+    <!-- Sidebar Logic -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const toggleBtn = document.getElementById('sidebarToggle');
+            const toggleIcon = document.getElementById('toggleIcon');
+            
+            // --- Mock User Data (from AuthContext) ---
+            const user = {
+                username: 'admin_user',
+                email: 'admin@example.com'
+            };
+
+            // 1. Render User Info
+            document.getElementById('userName').textContent = user.username;
+            document.getElementById('userEmail').textContent = user.email;
+            document.getElementById('userInitial').textContent = user.username.charAt(0).toUpperCase();
+
+            // 2. Collapse Logic
+            let isCollapsed = false;
+
+            toggleBtn.addEventListener('click', () => {
+                isCollapsed = !isCollapsed;
+                
+                if (isCollapsed) {
+                    sidebar.classList.add('collapsed');
+                    mainContent.classList.add('collapsed');
+                    toggleIcon.classList.remove('bi-chevron-left');
+                    toggleIcon.classList.add('bi-chevron-right');
+                } else {
+                    sidebar.classList.remove('collapsed');
+                    mainContent.classList.remove('collapsed');
+                    toggleIcon.classList.remove('bi-chevron-right');
+                    toggleIcon.classList.add('bi-chevron-left');
+                }
+            });
+
+            // 3. Navigation Active State Logic
+            // In a real app, this would check window.location.pathname
+            // For now, we manually highlight based on file purpose
+            const currentPath = window.location.pathname;
+            document.querySelectorAll('.nav-link').forEach(link => {
+                // Simple check: if href matches current page logic
+                // For Dashboard, we default to active on /admin
+                if (link.getAttribute('href') === '/admin' && (currentPath === '/admin' || currentPath.endsWith('Dashboard.html'))) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        });
+
+        // Set active helper
+        window.setActive = function(element) {
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+            element.classList.add('active');
+        };
+    </script>
+    </main>
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

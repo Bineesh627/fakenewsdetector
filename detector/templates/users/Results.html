@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Result - TruthGuard</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <!-- User Navbar CSS -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/UserNavbar.css' %}">
+    
+    <style>
+        /* --- Base Styles --- */
+        body {
+            background-color: #ffffff;
+            font-family: system-ui, -apple-system, sans-serif;
+            color: #0f172a; /* text-foreground */
+            min-height: 100vh;
+        }
+
+        /* --- Utilities --- */
+        .text-muted-foreground { color: #64748b; }
+        .font-bold { font-weight: 700; }
+        .font-semibold { font-weight: 600; }
+        .tracking-wide { letter-spacing: 0.05em; }
+        .rounded-xl { border-radius: 0.75rem; }
+
+        /* --- Animation --- */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+            opacity: 0; /* Start hidden */
+        }
+
+        /* --- Result Icon --- */
+        .result-icon-wrapper {
+            width: 6rem;
+            height: 6rem;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .result-icon-wrapper i {
+            font-size: 3rem;
+        }
+
+        /* --- Color Schemes --- */
+        /* Real / Success */
+        .theme-real .result-icon-wrapper {
+            background-color: rgba(22, 163, 74, 0.1); /* bg-success/10 */
+        }
+        .theme-real .text-theme { color: #16a34a; }
+        .theme-real .bg-bar { background-color: #16a34a; }
+
+        /* Fake / Destructive */
+        .theme-fake .result-icon-wrapper {
+            background-color: rgba(220, 38, 38, 0.1); /* bg-destructive/10 */
+        }
+        .theme-fake .text-theme { color: #dc2626; }
+        .theme-fake .bg-bar { background-color: #dc2626; }
+
+        /* --- Cards --- */
+        .content-card {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            text-align: left;
+            margin-bottom: 2rem;
+        }
+
+        /* --- Progress Bar --- */
+        .progress-track {
+            height: 1rem;
+            background-color: #f1f5f9; /* secondary */
+            border-radius: 9999px;
+            overflow: hidden;
+            width: 100%;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 9999px;
+            width: 0%; /* Start at 0 for animation */
+            transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* --- Buttons --- */
+        .btn-lg-custom {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            border-radius: 0.5rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+
+        .btn-outline-custom {
+            border: 1px solid #e2e8f0;
+            background: white;
+            color: #0f172a;
+        }
+        .btn-outline-custom:hover { background-color: #f1f5f9; }
+
+        .btn-dark-custom {
+            background-color: #0f172a;
+            color: white;
+            border: none;
+        }
+        .btn-dark-custom:hover { background-color: #1e293b; }
+
+    </style>
+</head>
+<body>
+
+    <!-- Navbar Component -->
+    <nav class="navbar-custom">
+        <div class="container navbar-content">
+            
+            <!-- 1. Logo -->
+            <a href="/" class="logo-link">
+                <div class="logo-icon-box">
+                    <i class="bi bi-shield-check text-dark"></i>
+                </div>
+                <span class="fw-bold fs-5">TruthGuard</span>
+            </a>
+
+            <!-- 2. Desktop Navigation (Hidden on Mobile) -->
+            <div class="d-none d-md-flex align-items-center gap-4">
+                <a href="/" class="nav-link-custom active">Home</a>
+                <a href="{% url 'predictions_list' %}" class="nav-link-custom">All Predictions</a>
+            </div>
+
+            <!-- 3. Auth Section (Hidden on Mobile) -->
+            <div class="d-none d-md-flex align-items-center gap-3" id="desktopAuthSection">
+                <!-- Javascript will populate this based on state -->
+            </div>
+
+            <!-- 4. Mobile Menu Button -->
+            <button class="btn btn-ghost-custom d-md-none p-2" id="mobileMenuBtn">
+                <i class="bi bi-list fs-5" id="mobileMenuIcon"></i>
+            </button>
+        </div>
+
+        <!-- 5. Mobile Menu Dropdown -->
+        <div class="container mobile-menu" id="mobileMenu">
+            <div class="d-flex flex-column gap-2">
+                <a href="/" class="mobile-nav-link active">Home</a>
+                <a href="{% url 'predictions_list' %}" class="mobile-nav-link">All Predictions</a>
+                
+                <!-- Mobile Auth Section -->
+                <div class="border-top pt-3 mt-2" id="mobileAuthSection">
+                    <!-- Javascript will populate this -->
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-5">
+        <div id="result-root" class="mx-auto text-center" style="max-width: 672px;">
+            <!-- Content will be injected here via JavaScript -->
+            <div class="spinner-border text-secondary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // --- Mock Data ---
+        // --- Real Data from Backend ---
+        const rawPredictions = JSON.parse("{{ predictions_json|escapejs }}");
+        
+        // Convert ISO date strings
+        const mockPredictions = rawPredictions.map(p => ({
+            ...p,
+            createdAt: new Date(p.createdAt)
+        }));
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const root = document.getElementById('result-root');
+
+            // 2. Find Prediction (Use the one and only injected result)
+            const prediction = mockPredictions[0];
+
+            // 3. Render
+            renderResult(root, prediction);
+        });
+
+        function renderResult(container, prediction) {
+            const isReal = prediction.prediction === 'Real';
+            const themeClass = isReal ? 'theme-real' : 'theme-fake';
+            const confidencePercent = Math.round(prediction.confidence * 100);
+            
+            // Icon Selection
+            const iconHtml = isReal 
+                ? '<i class="bi bi-check-circle-fill text-theme"></i>' 
+                : '<i class="bi bi-x-circle-fill text-theme"></i>';
+
+            container.innerHTML = `
+                <div class="${themeClass}">
+                    
+                    <!-- Icon -->
+                    <div class="result-icon-wrapper animate-fade-in" style="animation-delay: 0ms">
+                        ${iconHtml}
+                    </div>
+
+                    <!-- Heading -->
+                    <h1 class="display-4 font-bold mb-3 text-theme animate-fade-in" style="animation-delay: 100ms">
+                        ${prediction.prediction}
+                    </h1>
+
+                    <p class="fs-5 text-muted-foreground mb-5 animate-fade-in" style="animation-delay: 200ms">
+                        Confidence: <span class="fw-semibold text-dark">${confidencePercent}%</span>
+                    </p>
+
+                    <!-- Analyzed Text Card -->
+                    <div class="content-card animate-fade-in" style="animation-delay: 300ms">
+                        <h2 class="text-uppercase text-muted-foreground font-semibold mb-3 tracking-wide" style="font-size: 0.875rem;">
+                            Analyzed Text
+                        </h2>
+                        <p class="mb-0" style="line-height: 1.7;">
+                            ${prediction.text}
+                        </p>
+                    </div>
+
+                    <!-- Confidence Bar Card -->
+                    <div class="content-card animate-fade-in" style="animation-delay: 400ms">
+                        <h2 class="text-uppercase text-muted-foreground font-semibold mb-3 tracking-wide" style="font-size: 0.875rem;">
+                            Confidence Level
+                        </h2>
+                        
+                        <div class="progress-track mb-2">
+                            <div id="progressBar" class="progress-fill bg-bar"></div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between text-muted-foreground" style="font-size: 0.75rem;">
+                            <span>0%</span>
+                            <span>50%</span>
+                            <span>100%</span>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="d-flex flex-column flex-sm-row justify-content-center gap-3 animate-fade-in" style="animation-delay: 500ms">
+                        <a href="/feedback/${prediction.id}" class="btn btn-outline-custom btn-lg-custom">
+                            <i class="bi bi-exclamation-triangle"></i> Mark as Incorrect
+                        </a>
+                        <a href="/" class="btn btn-dark-custom btn-lg-custom">
+                            <i class="bi bi-house"></i> Back to Home
+                        </a>
+                    </div>
+
+                    <!-- Link -->
+                    <div class="mt-4 animate-fade-in" style="animation-delay: 600ms">
+                        <a href="/prediction/${prediction.id}" class="text-decoration-none d-inline-flex align-items-center gap-1" style="font-size: 0.875rem;">
+                            View full details <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+
+                </div>
+            `;
+
+            // Trigger Progress Bar Animation after render
+            setTimeout(() => {
+                const bar = document.getElementById('progressBar');
+                if(bar) bar.style.width = `${confidencePercent}%`;
+            }, 100);
+        }
+    </script>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Navbar Logic -->
+    <script>
+    (function() {
+         // --- State Management ---
+         const navState = {
+            isAuthenticated: "{{ user.is_authenticated|yesno:'true,false' }}" === "true",
+            mobileMenuOpen: false,
+            user: {
+                username: "{{ user.username|escapejs }}",
+                isAdmin: "{{ user.is_staff|yesno:'true,false' }}" === "true"
+            }
+        };
+
+        // --- DOM Elements ---
+        const desktopAuthContainer = document.getElementById('desktopAuthSection');
+        const mobileAuthContainer = document.getElementById('mobileAuthSection');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenuIcon = document.getElementById('mobileMenuIcon');
+
+        // --- Render Functions ---
+        function renderNavbar() {
+            // Check if we can sync with main page state if available
+            if (typeof state !== 'undefined' && state.isAuthenticated !== undefined) {
+                navState.isAuthenticated = state.isAuthenticated;
+                if(state.user) navState.user = state.user;
+            }
+
+            // Render Desktop Auth
+            if (navState.isAuthenticated) {
+                // Logged In View
+                const adminLink = navState.user.isAdmin 
+                    ? `<a href="/admin" class="btn btn-outline-custom btn-sm">Admin Panel</a>` 
+                    : '';
+
+                const authHtml = `
+                    <div class="d-flex align-items-center gap-2 text-sm text-muted" style="font-size: 0.875rem;">
+                        <i class="bi bi-person text-secondary"></i>
+                        <span class="fw-medium text-dark">${navState.user.username}</span>
+                    </div>
+                    ${adminLink}
+                    <button class="btn btn-ghost-custom btn-sm" onclick="handleLogout()">
+                        <i class="bi bi-box-arrow-right me-1"></i> Logout
+                    </button>
+                `;
+                desktopAuthContainer.innerHTML = authHtml;
+                
+                // Mobile Auth View
+                mobileAuthContainer.innerHTML = `
+                    <div class="d-flex align-items-center gap-2 mb-3 text-sm">
+                        <i class="bi bi-person text-secondary"></i>
+                        <span class="fw-medium">${navState.user.username}</span>
+                    </div>
+                    ${navState.user.isAdmin ? `
+                        <a href="/admin" class="btn btn-outline-custom w-100 mb-2">Admin Panel</a>
+                    ` : ''}
+                    <button class="btn btn-ghost-custom w-100 text-start ps-0" onclick="handleLogout()">
+                        <i class="bi bi-box-arrow-right me-2"></i> Logout
+                    </button>
+                    <!-- Actual Logout Form for Django -->
+                    <form id="logoutForm" action="{% url 'logout' %}" method="post" style="display:none">{% csrf_token %}</form>
+                `;
+
+            } else {
+                // Guest View
+                const guestHtml = `
+                    <a href="{% url 'login' %}" class="btn btn-ghost-custom btn-sm">Login</a>
+                    <a href="{% url 'signup' %}" class="btn btn-default-custom btn-sm">Sign Up</a>
+                `;
+                desktopAuthContainer.innerHTML = guestHtml;
+
+                // Mobile Guest View
+                mobileAuthContainer.innerHTML = `
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'login' %}" class="btn btn-ghost-custom flex-grow-1">Login</a>
+                        <a href="{% url 'signup' %}" class="btn btn-default-custom flex-grow-1">Sign Up</a>
+                    </div>
+                `;
+            }
+        }
+
+        // --- Event Handlers ---
+        function toggleMobileMenu() {
+            navState.mobileMenuOpen = !navState.mobileMenuOpen;
+            
+            if (navState.mobileMenuOpen) {
+                mobileMenu.classList.add('open');
+                mobileMenuIcon.classList.remove('bi-list');
+                mobileMenuIcon.classList.add('bi-x-lg');
+            } else {
+                mobileMenu.classList.remove('open');
+                mobileMenuIcon.classList.remove('bi-x-lg');
+                mobileMenuIcon.classList.add('bi-list');
+            }
+        }
+
+        // Expose logout for inline onClick
+        // Expose logout for inline onClick
+        window.handleLogout = function() {
+            // Submit the hidden form if it exists, or just visit the URL if it was a GET (Django best practice is POST for logout)
+            // Since we didn't add the form in desktop view yet, let's just create one dynamically or append it
+            let form = document.getElementById('logoutForm');
+            if(!form) {
+                form = document.createElement('form');
+                form.method = 'POST';
+                form.action = "{% url 'logout' %}";
+                const csrf = document.createElement('input');
+                csrf.type = 'hidden';
+                csrf.name = 'csrfmiddlewaretoken';
+                csrf.value = '{{ csrf_token }}';
+                form.appendChild(csrf);
+                document.body.appendChild(form);
+            }
+            form.submit();
+        };
+        renderNavbar(); // Re-render
+
+        if(mobileMenuBtn) {
+            mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+        }
+
+        // Initial Render
+        // Hook into Main State changes if possible, or just render once
+        renderNavbar();
+    })();
+    </script>
+</body>
+</html>

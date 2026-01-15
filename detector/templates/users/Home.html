@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TrustCheck AI | Detect Fake News Before It Spreads</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Bootstrap 5 CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"
+    />
+    {% load static %}
+    <!-- User Navbar CSS -->
+    <link rel="stylesheet" href="{% static 'css/UserNavbar.css' %}">
+    <style>
+      :root {
+        /* Override UserNavbar properties for this specific page design */
+        --primary: #2563eb; /* Bright Blue for buttons */
+        --primary-fg: #ffffff;
+        --tw-primary: 79 70 229; /* Keep for tailwind compatibility if needed */
+      }
+
+      /* Fix gap between navbar and hero */
+      body {
+        padding-top: 4rem !important;
+      }
+
+      /* Hero Specific Styles */
+      .hero-section {
+        background-color: #0f172a; /* Slate 900 - Dark Background */
+        color: white;
+      }
+      
+      .hero-badge {
+        background-color: rgba(30, 41, 59, 0.8); /* Slate 800 with opacity */
+        border: 1px solid rgba(51, 65, 85, 0.5);
+        color: #e2e8f0;
+      }
+
+      .hero-gradient {
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      }
+
+      .animate-fade-in {
+        animation: fadeIn 0.8s ease-out forwards;
+        opacity: 0;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .line-clamp-3 {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body class="bg-slate-50 text-slate-900 font-sans">
+    <!-- Navigation -->
+    <!-- Navbar Component -->
+    <nav class="navbar-custom">
+        <div class="container navbar-content">
+            
+            <!-- 1. Logo -->
+            <a href="/" class="logo-link">
+                <div class="logo-icon-box">
+                    <i class="bi bi-shield-check text-dark"></i>
+                </div>
+                <span class="fw-bold fs-5">TruthGuard</span>
+            </a>
+
+            <!-- 2. Desktop Navigation (Hidden on Mobile) -->
+            <div class="d-none d-md-flex align-items-center gap-4">
+                <a href="/" class="nav-link-custom active">Home</a>
+                <a href="{% url 'predictions_list' %}" class="nav-link-custom">All Predictions</a>
+            </div>
+
+            <!-- 3. Auth Section (Hidden on Mobile) -->
+            <div class="d-none d-md-flex align-items-center gap-3" id="desktopAuthSection">
+                <!-- Javascript will populate this based on state -->
+            </div>
+
+            <!-- 4. Mobile Menu Button -->
+            <button class="btn btn-ghost-custom d-md-none p-2" id="mobileMenuBtn">
+                <i class="bi bi-list fs-5" id="mobileMenuIcon"></i>
+            </button>
+        </div>
+
+        <!-- 5. Mobile Menu Dropdown -->
+        <div class="container mobile-menu" id="mobileMenu">
+            <div class="d-flex flex-column gap-2">
+                <a href="/" class="mobile-nav-link active">Home</a>
+                <a href="{% url 'predictions_list' %}" class="mobile-nav-link">All Predictions</a>
+                
+                <!-- Mobile Auth Section -->
+                <div class="border-top pt-3 mt-2" id="mobileAuthSection">
+                    <!-- Javascript will populate this -->
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section py-20 lg:py-28 relative overflow-hidden">
+      <!-- Background Glow Effect -->
+      <div class="absolute inset-0 overflow-hidden pointer-events-none">
+         <div class="absolute -top-[50%] -left-[20%] w-[70%] h-[70%] rounded-full bg-blue-600/10 blur-[100px]"></div>
+         <div class="absolute top-[20%] -right-[20%] w-[60%] h-[60%] rounded-full bg-indigo-600/10 blur-[100px]"></div>
+      </div>
+
+      <div class="container mx-auto px-4 relative z-10 text-center">
+        <div
+          class="inline-flex items-center gap-2 hero-badge rounded-full px-4 py-2 mb-8 animate-fade-in"
+        >
+          <i data-lucide="shield" class="h-4 w-4 text-blue-400"></i>
+          <span class="text-sm font-medium">AI-Powered Fact Checking</span>
+        </div>
+        <h1
+          class="text-4xl lg:text-6xl font-bold mb-6 animate-fade-in [animation-delay:200ms] tracking-tight"
+        >
+          Detect Fake News<br />Before It Spreads
+        </h1>
+        <p
+          class="text-lg lg:text-xl text-slate-300 mb-10 max-w-2xl mx-auto animate-fade-in [animation-delay:400ms]"
+        >
+          Our advanced AI analyzes news articles in seconds, helping you
+          identify misinformation and verify facts with confidence.
+        </p>
+        <div
+          id="heroButtons"
+          class="flex items-center justify-center gap-4 animate-fade-in [animation-delay:600ms]"
+        >
+          <!-- Dynamic Hero Buttons -->
+          {% if user.is_authenticated %}
+            <button onclick="document.getElementById('formSection').scrollIntoView({behavior:'smooth'})" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold shadow-lg shadow-blue-500/20 transition-all border-0">Submit New Article</button>
+          {% else %}
+            <a href="{% url 'signup' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold shadow-lg shadow-blue-500/20 transition-all hover:scale-105 text-decoration-none">Get Started Free</a>
+            <a href="{% url 'login' %}" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors text-decoration-none">Sign In</a>
+          {% endif %}
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats Bar -->
+    <section class="bg-white border-b border-slate-200 py-8">
+      <div class="container mx-auto px-4">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div class="text-center">
+            <i
+              data-lucide="shield"
+              class="h-6 w-6 mx-auto text-indigo-600 mb-2"
+            ></i>
+            <p class="text-2xl font-bold">50K+</p>
+            <p class="text-sm text-slate-500">Articles Analyzed</p>
+          </div>
+          <div class="text-center">
+            <i
+              data-lucide="check-circle"
+              class="h-6 w-6 mx-auto text-indigo-600 mb-2"
+            ></i>
+            <p class="text-2xl font-bold">94%</p>
+            <p class="text-sm text-slate-500">Accuracy Rate</p>
+          </div>
+          <div class="text-center">
+            <i
+              data-lucide="users"
+              class="h-6 w-6 mx-auto text-indigo-600 mb-2"
+            ></i>
+            <p class="text-2xl font-bold">10K+</p>
+            <p class="text-sm text-slate-500">Active Users</p>
+          </div>
+          <div class="text-center">
+            <i
+              data-lucide="trending-up"
+              class="h-6 w-6 mx-auto text-indigo-600 mb-2"
+            ></i>
+            <p class="text-2xl font-bold">1M+</p>
+            <p class="text-sm text-slate-500">Votes Cast</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Form Section -->
+    <!-- Form Section -->
+    <section id="formSection" class="py-12 lg:py-16">
+      <div class="container mx-auto px-4">
+        <div id="formContainer" class="max-w-2xl mx-auto">
+          {% if user.is_authenticated %}
+            <div class="bg-white rounded-2xl border border-slate-200 p-8 shadow-lg">
+                <h2 class="text-2xl font-bold mb-2">Check News Authenticity</h2>
+                <p class="text-slate-500 mb-6">Submit a news article link or paste the text to verify.</p>
+                <form id="newsForm" class="space-y-6" method="POST" action="{% url 'home' %}">
+                    {% csrf_token %}
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-2 text-sm font-medium"><i data-lucide="link-2" class="h-4 w-4 text-indigo-600"></i>News Link</label>
+                        <input type="url" id="newsLink" name="news_link" placeholder="https://..." class="w-full h-12 px-4 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none">
+                    </div>
+                    <div class="relative flex items-center justify-center"><div class="absolute inset-0 flex items-center"><div class="w-full border-t"></div></div><span class="relative bg-white px-2 text-xs text-slate-400">OR</span></div>
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-2 text-sm font-medium"><i data-lucide="file-text" class="h-4 w-4 text-indigo-600"></i>Paste Raw Text</label>
+                        <textarea id="newsText" name="news_text" rows="4" placeholder="Paste content here..." class="w-full p-4 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none resize-none"></textarea>
+                    </div>
+                    <button type="submit" id="submitBtn" class="w-full bg-indigo-600 text-white h-12 rounded-lg font-bold flex items-center justify-center gap-2 hover:bg-indigo-700 disabled:opacity-50">
+                        <i data-lucide="sparkles" class="h-5 w-5"></i> Analyze News
+                    </button>
+                </form>
+            </div>
+          {% else %}
+            <div class="text-center py-12 bg-slate-200/50 rounded-2xl border border-dashed border-slate-300">
+                <h2 class="text-2xl font-bold mb-4">Ready to Fight Misinformation?</h2>
+                <p class="text-slate-500 mb-6">Create a free account to start analyzing news articles.</p>
+                <div class="flex items-center justify-center gap-4">
+                    <a href="{% url 'signup' %}" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium text-decoration-none">Create Account</a>
+                    <a href="{% url 'login' %}" class="border border-slate-300 px-6 py-2 rounded-lg font-medium bg-white text-decoration-none text-dark">Sign In</a>
+                </div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </section>
+
+    <!-- Popular Submissions -->
+    <section class="py-12 lg:py-16 bg-slate-100/50">
+      <div class="container mx-auto px-4">
+        <div class="flex items-center justify-between mb-8">
+          <div>
+            <h2 class="text-2xl font-bold">Popular Submissions</h2>
+            <p class="text-slate-500">Most voted articles this week</p>
+          </div>
+          <button
+            class="px-4 py-2 border border-slate-300 rounded-lg hover:bg-white transition-colors"
+          >
+            View All
+          </button>
+        </div>
+
+        <div
+          id="predictionsGrid"
+          class="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
+          {% for p in popular %}
+          <article class="bg-white rounded-xl border border-slate-200 p-5 hover:shadow-lg transition-all animate-fade-in">
+              <div class="flex items-center justify-between mb-3">
+                  <span class="px-2.5 py-0.5 rounded-full text-xs font-bold 
+                      {% if p.prediction == 'Real' %}bg-green-50 text-green-600{% else %}bg-red-50 text-red-600{% endif %}">
+                      {{ p.prediction }}
+                  </span>
+                  <span class="text-xs text-slate-400">
+                    {{ p.confidence|floatformat:2 }}% confidence
+                  </span>
+              </div>
+              <p class="text-slate-900 font-medium line-clamp-3 mb-4 cursor-pointer hover:text-indigo-600 transition-colors">
+                  <a href="{% url 'prediction_detail' p.id %}" class="text-decoration-none text-reset">{{ p.text }}</a>
+              </p>
+              <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+                  <div class="flex items-center gap-1 text-xs text-slate-400">
+                      <i data-lucide="clock" class="h-3 w-3"></i>
+                      {{ p.created_at|date:"M d, Y" }}
+                  </div>
+                  <div class="flex gap-2">
+                      <a href="{% url 'vote' p.id 'UP' %}" class="flex items-center gap-1 px-3 py-1 bg-slate-50 border border-slate-200 rounded-md text-green-600 text-sm hover:border-green-200 text-decoration-none">
+                          <i data-lucide="thumbs-up" class="h-3 w-3"></i> {{ p.up_votes }}
+                      </a>
+                      <a href="{% url 'vote' p.id 'DOWN' %}" class="flex items-center gap-1 px-3 py-1 bg-slate-50 border border-slate-200 rounded-md text-red-600 text-sm hover:border-red-200 text-decoration-none">
+                          <i data-lucide="thumbs-down" class="h-3 w-3"></i> {{ p.down_votes }}
+                      </a>
+                  </div>
+              </div>
+          </article>
+          {% empty %}
+          <div class="col-span-full text-center py-10 text-muted">
+              <p>No predictions yet. Be the first to submit!</p>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
+    <script>
+      // Initialize Icons
+      lucide.createIcons();
+
+      // Simple Form Loading State
+      const newsForm = document.getElementById('newsForm');
+      if(newsForm) {
+          newsForm.addEventListener('submit', function(e) {
+              const btn = document.getElementById("submitBtn");
+              const link = document.getElementById("newsLink").value;
+              const text = document.getElementById("newsText").value;
+    
+              if (!link && !text) {
+                  e.preventDefault();
+                  alert("Please provide a link or text to analyze.");
+                  return;
+              }
+              // Allow default submit causing page reload, but show loading
+              btn.disabled = true;
+              btn.innerHTML = `<i data-lucide="loader-2" class="h-5 w-5 animate-spin"></i> Analyzing...`;
+              lucide.createIcons();
+          });
+      }
+    </script>
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Navbar Logic -->
+    <script>
+      (function () {
+        // --- State Management ---
+        const navState = {
+            isAuthenticated: "{{ user.is_authenticated|yesno:'true,false' }}" === "true",
+            user: {
+                username: "{{ user.username|escapejs }}",
+                isAdmin: "{{ user.is_staff|yesno:'true,false' }}" === "true",
+            },
+            mobileMenuOpen: false
+        };
+
+        // --- DOM Elements ---
+        const desktopAuthContainer = document.getElementById("desktopAuthSection");
+        const mobileAuthContainer = document.getElementById("mobileAuthSection");
+        const mobileMenu = document.getElementById("mobileMenu");
+        const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+        const mobileMenuIcon = document.getElementById("mobileMenuIcon");
+
+        // --- Render Functions ---
+        function renderNavbar() {
+          // Render Desktop Auth
+          if (navState.isAuthenticated) {
+            // Logged In View
+            const adminLink = navState.user.isAdmin
+              ? `<a href="/admin" class="btn btn-outline-custom btn-sm">Admin Panel</a>`
+              : "";
+
+            const authHtml = `
+                    <div class="d-flex align-items-center gap-2 text-sm text-muted" style="font-size: 0.875rem;">
+                        <i class="bi bi-person text-secondary"></i>
+                        <span class="fw-medium text-dark">${navState.user.username}</span>
+                    </div>
+                    ${adminLink}
+                    <a href="{% url 'logout' %}" class="btn btn-ghost-custom btn-sm">
+                        <i class="bi bi-box-arrow-right me-1"></i> Logout
+                    </a>
+                `;
+            desktopAuthContainer.innerHTML = authHtml;
+
+            // Mobile Auth View
+            mobileAuthContainer.innerHTML = `
+                    <div class="d-flex align-items-center gap-2 mb-3 text-sm">
+                        <i class="bi bi-person text-secondary"></i>
+                        <span class="fw-medium">${navState.user.username}</span>
+                    </div>
+                    ${
+                      navState.user.isAdmin
+                        ? `
+                        <a href="/admin" class="btn btn-outline-custom w-100 mb-2">Admin Panel</a>
+                    `
+                        : ""
+                    }
+                    <a href="{% url 'logout' %}" class="btn btn-ghost-custom w-100 text-start ps-0">
+                        <i class="bi bi-box-arrow-right me-2"></i> Logout
+                    </a>
+                `;
+          } else {
+            // Guest View
+            const guestHtml = `
+                    <a href="{% url 'login' %}" class="btn btn-ghost-custom btn-sm">Login</a>
+                    <a href="{% url 'signup' %}" class="btn btn-default-custom btn-sm">Sign Up</a>
+                `;
+            desktopAuthContainer.innerHTML = guestHtml;
+
+            // Mobile Guest View
+            mobileAuthContainer.innerHTML = `
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'login' %}" class="btn btn-ghost-custom flex-grow-1">Login</a>
+                        <a href="{% url 'signup' %}" class="btn btn-default-custom flex-grow-1">Sign Up</a>
+                    </div>
+                `;
+          }
+        }
+
+        // --- Event Handlers ---
+        function toggleMobileMenu() {
+          navState.mobileMenuOpen = !navState.mobileMenuOpen;
+
+          if (navState.mobileMenuOpen) {
+            mobileMenu.classList.add("open");
+            mobileMenuIcon.classList.remove("bi-list");
+            mobileMenuIcon.classList.add("bi-x-lg");
+          } else {
+            mobileMenu.classList.remove("open");
+            mobileMenuIcon.classList.remove("bi-x-lg");
+            mobileMenuIcon.classList.add("bi-list");
+          }
+        }
+
+        if (mobileMenuBtn) {
+          mobileMenuBtn.addEventListener("click", toggleMobileMenu);
+        }
+
+        // Initial Render
+        renderNavbar();
+      })();
+    </script>
+  </body>
+</html>

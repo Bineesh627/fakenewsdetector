@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TruthGuard User Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9fafb;
+            color: #111827;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            z-index: 50;
+            min-width: 160px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            padding: 4px;
+        }
+
+        .dropdown-content.show {
+            display: block;
+            animation: fadeIn 0.1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .user-row:hover {
+            background-color: #f3f4f6;
+        }
+
+
+    </style>
+    <!-- Sidebar CSS -->
+    <link rel="stylesheet" href="css/Sidebar.css">
+    
+    <!-- Bootstrap 5 CSS & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar">
+        <!-- Collapse Button -->
+        <button id="sidebarToggle" class="toggle-btn" aria-label="Toggle Sidebar">
+            <i class="bi bi-chevron-left" id="toggleIcon"></i>
+        </button>
+
+        <!-- Header -->
+        <div class="sidebar-header">
+            <a href="/admin" class="text-decoration-none d-flex align-items-center gap-3">
+                <div class="logo-box">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+                <div class="brand-text">
+                    <div class="fw-bold fs-6 text-dark">TruthGuard</div>
+                    <div class="text-muted" style="font-size: 0.75rem;">Admin Panel</div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="sidebar-nav">
+            <a href="/admin" class="nav-link" onclick="setActive(this)">
+                <i class="bi bi-speedometer2"></i>
+                <span class="link-text">Dashboard</span>
+            </a>
+            <a href="/admin/users" class="nav-link active" onclick="setActive(this)">
+                <i class="bi bi-people"></i>
+                <span class="link-text">Users</span>
+            </a>
+            <a href="/admin/predictions" class="nav-link" onclick="setActive(this)">
+                <i class="bi bi-file-text"></i>
+                <span class="link-text">Predictions</span>
+            </a>
+            <a href="/admin/feedback" class="nav-link" onclick="setActive(this)">
+                <i class="bi bi-chat-square-text"></i>
+                <span class="link-text">Feedback</span>
+            </a>
+            <a href="/admin/logs" class="nav-link" onclick="setActive(this)">
+                <i class="bi bi-activity"></i>
+                <span class="link-text">Activity Logs</span>
+            </a>
+            <a href="/admin/settings" class="nav-link" onclick="setActive(this)">
+                <i class="bi bi-gear"></i>
+                <span class="link-text">Settings</span>
+            </a>
+        </nav>
+
+        <!-- User Section -->
+        <div class="user-section">
+            <div class="user-profile">
+                <div class="avatar-circle">
+                    <span id="userInitial">A</span>
+                </div>
+                <div class="user-info d-flex flex-column" style="min-width: 0;">
+                    <span class="fw-medium text-dark text-truncate" id="userName" style="font-size: 0.875rem;">Loading...</span>
+                    <span class="text-muted text-truncate" id="userEmail" style="font-size: 0.75rem;">Loading...</span>
+                </div>
+            </div>
+            
+            <a href="/" class="logout-btn text-decoration-none">
+                <i class="bi bi-box-arrow-right" style="width: 1.25rem; text-align: center;"></i>
+                <span class="logout-text ms-2" style="font-size: 0.875rem;">Back to Site</span>
+            </a>
+        </div>
+    </aside>
+
+    <main id="mainContent" class="main-content">
+    <div class="max-w-6xl mx-auto space-y-6">
+        
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Users</h1>
+                <p class="text-gray-500">Manage user accounts and permissions</p>
+            </div>
+            <button class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm">
+                <i data-lucide="user" class="h-4 w-4 mr-2"></i>
+                Add User
+            </button>
+        </div>
+
+        <!-- Search -->
+        <div class="relative max-w-md">
+            <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400"></i>
+            <input 
+                type="text" 
+                id="userSearch"
+                placeholder="Search users..." 
+                class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm transition-all"
+            >
+        </div>
+
+        <!-- Users Table Container -->
+        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                            <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">User</th>
+                            <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</th>
+                            <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Role</th>
+                            <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Joined</th>
+                            <th class="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersList">
+                        <!-- Users will be injected here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div id="summary" class="text-sm text-gray-500">
+            <!-- Summary text will be injected here -->
+        </div>
+    </div>
+
+    <script>
+        // Mock Data
+        const mockUsers = [
+            { id: '1', username: 'john_doe', email: 'john@example.com', isAdmin: false, createdAt: '2024-01-01' },
+            { id: '2', username: 'jane_smith', email: 'jane@example.com', isAdmin: false, createdAt: '2024-01-02' },
+            { id: '3', username: 'bob_wilson', email: 'bob@example.com', isAdmin: false, createdAt: '2024-01-03' },
+            { id: '4', username: 'admin', email: 'admin@example.com', isAdmin: true, createdAt: '2023-12-01' },
+        ];
+
+        let searchQuery = '';
+
+        // Initialize Icons
+        function refreshIcons() {
+            lucide.createIcons();
+        }
+
+        // Render Users
+        function renderUsers() {
+            const list = document.getElementById('usersList');
+            const summary = document.getElementById('summary');
+            
+            const filteredUsers = mockUsers.filter(user =>
+                user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                user.email.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+
+            list.innerHTML = filteredUsers.map(user => `
+                <tr class="user-row border-b border-gray-100 last:border-0 transition-colors">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
+                                <span class="text-sm font-bold text-blue-600">
+                                    ${user.username.charAt(0).toUpperCase()}
+                                </span>
+                            </div>
+                            <span class="font-medium text-gray-900">${user.username}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-2 text-sm text-gray-500">
+                            <i data-lucide="mail" class="h-4 w-4"></i>
+                            ${user.email}
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        ${user.isAdmin ? `
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+                                <i data-lucide="shield" class="h-3 w-3 mr-1"></i>
+                                Admin
+                            </span>
+                        ` : `
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-800">
+                                User
+                            </span>
+                        `}
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-500">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="calendar" class="h-4 w-4"></i>
+                            ${new Date(user.createdAt).toLocaleDateString()}
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-right relative">
+                        <button onclick="toggleDropdown(event, '${user.id}')" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                            <i data-lucide="more-vertical" class="h-4 w-4 text-gray-500"></i>
+                        </button>
+                        <div id="dropdown-${user.id}" class="dropdown-content text-left">
+                            <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 text-left">View Profile</button>
+                            <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 text-left">Edit User</button>
+                            <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 text-left">
+                                ${user.isAdmin ? 'Remove Admin' : 'Make Admin'}
+                            </button>
+                            <div class="h-px bg-gray-100 my-1"></div>
+                            <button class="w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 text-left">Delete User</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+
+            summary.textContent = `Showing ${filteredUsers.length} of ${mockUsers.length} users`;
+            refreshIcons();
+        }
+
+        // Dropdown Logic
+        function toggleDropdown(event, userId) {
+            event.stopPropagation();
+            const allDropdowns = document.querySelectorAll('.dropdown-content');
+            allDropdowns.forEach(d => {
+                if(d.id !== `dropdown-${userId}`) d.classList.remove('show');
+            });
+            document.getElementById(`dropdown-${userId}`).classList.toggle('show');
+        }
+
+        // Close dropdowns on click outside
+        window.onclick = function() {
+            const allDropdowns = document.querySelectorAll('.dropdown-content');
+            allDropdowns.forEach(d => d.classList.remove('show'));
+        };
+
+        // Search Logic
+        document.getElementById('userSearch').addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            renderUsers();
+        });
+
+        // Initial Render
+        renderUsers();
+    </script>
+    <!-- Sidebar Logic -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const toggleBtn = document.getElementById('sidebarToggle');
+            const toggleIcon = document.getElementById('toggleIcon');
+            
+            // --- Mock User Data (from AuthContext) ---
+            const user = {
+                username: 'admin_user',
+                email: 'admin@example.com'
+            };
+
+            // 1. Render User Info
+            if(document.getElementById('userName')) {
+                document.getElementById('userName').textContent = user.username;
+                document.getElementById('userEmail').textContent = user.email;
+                document.getElementById('userInitial').textContent = user.username.charAt(0).toUpperCase();
+            }
+
+            // 2. Collapse Logic
+            let isCollapsed = false;
+
+            toggleBtn.addEventListener('click', () => {
+                isCollapsed = !isCollapsed;
+                
+                if (isCollapsed) {
+                    sidebar.classList.add('collapsed');
+                    mainContent.classList.add('collapsed');
+                    toggleIcon.classList.remove('bi-chevron-left');
+                    toggleIcon.classList.add('bi-chevron-right');
+                } else {
+                    sidebar.classList.remove('collapsed');
+                    mainContent.classList.remove('collapsed');
+                    toggleIcon.classList.remove('bi-chevron-right');
+                    toggleIcon.classList.add('bi-chevron-left');
+                }
+            });
+        });
+    </script>
+    </main>
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, authenticate
+from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.http import HttpResponse
 from django.db import models
@@ -34,15 +35,29 @@ def predict_fake_news(text):
 
 def scrape_text_from_url(url):
     try:
-        response = requests.get(url, timeout=10)
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
+        response = requests.get(url, headers=headers, timeout=10)
         soup = BeautifulSoup(response.text, 'html.parser')
-        paragraphs = soup.find_all('p')
-        text = ' '.join([p.get_text() for p in paragraphs if p.get_text().strip()])
-        return text[:5000]  # Limit length
+
+        body = soup.find('body')
+        if body:
+            # Remove unwanted tags
+            for tag in body(["script", "style", "header", "footer", "nav", "aside", "form", "iframe", "ads", "advertisement"]):
+                tag.decompose()
+
+            # Capture specific content block tags.
+            # We exclude 'div' to avoid capturing menus/sidebars/footers which often are just divs with links.
+            # Valid inline tags like strong, mark, em etc. will be captured if they are inside these blocks.
+            content_tags = body.find_all(['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'blockquote', 'article', 'section'])
+            text = ' '.join([tag.get_text(separator=' ', strip=True) for tag in content_tags if tag.get_text(strip=True)])
+            # Clean up extra spaces
+            text = ' '.join(text.split())
+            return text[:5000]
+            
+        return None
     except Exception:
         return None
 
-@login_required
 def home(request):
     if request.method == 'POST':
         link_url = request.POST.get('news_link')
@@ -57,7 +72,23 @@ def home(request):
                 prediction=result,
                 confidence=confidence
             )
-            return render(request, 'result.html', {'pred': pred})
+            # Serialize for result page
+            prediction_data = [{
+                'id': str(pred.id),
+                'text': pred.text,
+                'linkUrl': pred.link_url if pred.link_url else '',
+                'prediction': pred.prediction,
+                'confidence': float(pred.confidence),
+                'votesUp': 0,
+                'votesDown': 0,
+                'userId': str(pred.user.id) if pred.user else '',
+                'userName': pred.user.username if pred.user else 'Anonymous',
+                'createdAt': pred.created_at.isoformat(), 
+                'isCorrection': False 
+            }]
+            predictions_json = json.dumps(prediction_data, cls=DjangoJSONEncoder)
+
+            return render(request, 'users/Results.html', {'predictions_json': predictions_json})
         else:
             return HttpResponse("Invalid link or text.")
     
@@ -68,44 +99,92 @@ def home(request):
     ).annotate(
         net_votes=F('up_votes') - F('down_votes')
     ).order_by('-net_votes')[:10]
-    return render(request, 'home.html', {'popular': popular})
+    return render(request, 'users/home.html', {'popular': popular})
 
 def signup(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        
+        # Check if user already exists
+        if User.objects.filter(username=username).exists():
+             return render(request, 'users/signup.html', {'error': 'Username already taken'})
+        
+        if User.objects.filter(email=email).exists():
+            return render(request, 'users/signup.html', {'error': 'Email already registered'})
+            
+        try:
+            # Create user with username and email
+            user = User.objects.create_user(username=username, email=email, password=password)
             login(request, user)
             return redirect('home')
-    else:
-        form = UserCreationForm()
-    return render(request, 'signup.html', {'form': form})
+        except Exception as e:
+            return render(request, 'users/signup.html', {'error': 'Error creating account'})
+            
+    return render(request, 'users/signup.html')
 
 def login_view(request):
     if request.method == 'POST':
-        form = AuthenticationForm(data=request.POST)
-        if form.is_valid():
-            user = form.get_user()
-            login(request, user)
-            return redirect('home')
-    else:
-        form = AuthenticationForm()
-    return render(request, 'login.html', {'form': form})
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        
+        try:
+            # Find user by email
+            user_obj = User.objects.get(email=email)
+            # Authenticate using the username (which is the email in our case)
+            user = authenticate(request, username=user_obj.username, password=password)
+            
+            if user is not None:
+                login(request, user)
+                return redirect('home')
+            else:
+                 return render(request, 'users/login.html', {'error': 'Invalid email or password'})
+        except User.DoesNotExist:
+             return render(request, 'users/login.html', {'error': 'Invalid email or password'})
 
-@login_required
+    return render(request, 'users/Login.html')
+
 def feedback_view(request, pred_id):
-    pred = Prediction.objects.get(id=pred_id)
+    try:
+        pred = Prediction.objects.annotate(
+            up_votes=Count('vote', filter=Q(vote__vote_type='UP')),
+            down_votes=Count('vote', filter=Q(vote__vote_type='DOWN'))
+        ).get(id=pred_id)
+    except Prediction.DoesNotExist:
+        return redirect('predictions_list')
+
     if request.method == 'POST':
+        # Handle form submission
         corrected_label = request.POST.get('corrected_label')
-        note = request.POST.get('note')
+        feedback_note = request.POST.get('feedback_note')
+        
         Feedback.objects.create(
             prediction=pred,
-            user=request.user,
+            user=request.user if request.user.is_authenticated else None,
             corrected_label=corrected_label,
-            feedback_note=note
+            feedback_note=feedback_note
         )
-        return redirect('home')
-    return render(request, 'feedback.html', {'pred': pred})
+        # Return JSON success for JS fetch or redirect
+        return JsonResponse({'status': 'success', 'message': 'Feedback submitted'})
+
+    # Serialize for template
+    prediction_data = [{
+        'id': str(pred.id),
+        'text': pred.text,
+        'linkUrl': pred.link_url if pred.link_url else '',
+        'prediction': pred.prediction,
+        'confidence': float(pred.confidence),
+        'votesUp': pred.up_votes,
+        'votesDown': pred.down_votes,
+        'userId': str(pred.user.id) if pred.user else '',
+        'createdAt': pred.created_at.isoformat(), 
+        'isCorrection': False 
+    }]
+    predictions_json = json.dumps(prediction_data, cls=DjangoJSONEncoder)
+
+    return render(request, 'users/Feedback.html', {'predictions_json': predictions_json, 'pred_id': pred_id})
+    return render(request, 'users/Feedback.html', {'pred': pred})
 
 @login_required
 def vote(request, pred_id, vote_type):
@@ -117,8 +196,62 @@ def vote(request, pred_id, vote_type):
             user=request.user,
             defaults={'vote_type': vote_type}
         )
-    return redirect('home')
+    return redirect(request.META.get('HTTP_REFERER', 'home'))
+
+import json
+from django.core.serializers.json import DjangoJSONEncoder
 
 def predictions_list(request):
-    preds = Prediction.objects.all().order_by('-created_at')
-    return render(request, 'list.html', {'predictions': preds})
+    # Annotate with vote counts
+    preds_qs = Prediction.objects.annotate(
+        up_votes=Count('vote', filter=Q(vote__vote_type='UP')),
+        down_votes=Count('vote', filter=Q(vote__vote_type='DOWN'))
+    ).order_by('-created_at')
+
+    # Serialize to list of dicts for JS
+    predictions_data = []
+    for p in preds_qs:
+        predictions_data.append({
+            'id': str(p.id),
+            'text': p.text,
+            'linkUrl': p.link_url if p.link_url else '',
+            'prediction': p.prediction,
+            'confidence': float(p.confidence),
+            'votesUp': p.up_votes,
+            'votesDown': p.down_votes,
+            'userId': str(p.user.id),
+            'userName': p.user.username,
+            'createdAt': p.created_at.isoformat(), # ISO format for JS Date parsing
+            'isCorrection': False # helper logic if needed
+        })
+    
+    # Dump to JSON string
+    predictions_json = json.dumps(predictions_data, cls=DjangoJSONEncoder)
+    
+    return render(request, 'users/PredictionList.html', {'predictions_json': predictions_json})
+
+def prediction_detail(request, pred_id):
+    # Get specific prediction and annotate
+    p = Prediction.objects.annotate(
+        up_votes=Count('vote', filter=Q(vote__vote_type='UP')),
+        down_votes=Count('vote', filter=Q(vote__vote_type='DOWN'))
+    ).get(id=pred_id)
+
+    # Serialize to list of ONE dict (to match template array structure)
+    prediction_data = [{
+        'id': str(p.id),
+        'text': p.text,
+        'linkUrl': p.link_url if p.link_url else '',
+        'prediction': p.prediction,
+        'confidence': float(p.confidence),
+        'votesUp': p.up_votes,
+        'votesDown': p.down_votes,
+        'userId': str(p.user.id),
+        'userName': p.user.username,
+        'createdAt': p.created_at.isoformat(), 
+        'isCorrection': False 
+    }]
+
+    predictions_json = json.dumps(prediction_data, cls=DjangoJSONEncoder)
+    
+    return render(request, 'users/PredictionDetails.html', {'predictions_json': predictions_json})
