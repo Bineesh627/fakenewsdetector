@@ -33,6 +33,7 @@
         .line-clamp-1 {
             display: -webkit-box;
             -webkit-line-clamp: 1;
+            line-clamp: 1;
             -webkit-box-orient: vertical;  
             overflow: hidden;
         }
@@ -49,71 +50,8 @@
 </head>
 <body>
     <!-- Sidebar -->
-    <aside id="sidebar" class="sidebar">
-        <!-- Collapse Button -->
-        <button id="sidebarToggle" class="toggle-btn" aria-label="Toggle Sidebar">
-            <i class="bi bi-chevron-left" id="toggleIcon"></i>
-        </button>
-
-        <!-- Header -->
-        <div class="sidebar-header">
-            <a href="/admin" class="text-decoration-none d-flex align-items-center gap-3">
-                <div class="logo-box">
-                    <i class="bi bi-shield-check"></i>
-                </div>
-                <div class="brand-text">
-                    <div class="fw-bold fs-6 text-dark">TruthGuard</div>
-                    <div class="text-muted" style="font-size: 0.75rem;">Admin Panel</div>
-                </div>
-            </a>
-        </div>
-
-        <!-- Navigation -->
-        <nav class="sidebar-nav">
-            <a href="{% url 'admin_dashboard' %}" class="nav-link active" onclick="setActive(this)">
-                <i class="bi bi-speedometer2"></i>
-                <span class="link-text">Dashboard</span>
-            </a>
-            <a href="{% url 'admin_users' %}" class="nav-link" onclick="setActive(this)">
-                <i class="bi bi-people"></i>
-                <span class="link-text">Users</span>
-            </a>
-            <a href="{% url 'admin_predictions' %}" class="nav-link" onclick="setActive(this)">
-                <i class="bi bi-file-text"></i>
-                <span class="link-text">Predictions</span>
-            </a>
-            <a href="{% url 'admin_feedback' %}" class="nav-link" onclick="setActive(this)">
-                <i class="bi bi-chat-square-text"></i>
-                <span class="link-text">Feedback</span>
-            </a>
-            <a href="{% url 'admin_activity' %}" class="nav-link" onclick="setActive(this)">
-                <i class="bi bi-activity"></i>
-                <span class="link-text">Activity Logs</span>
-            </a>
-            <a href="{% url 'admin_settings' %}" class="nav-link" onclick="setActive(this)">
-                <i class="bi bi-gear"></i>
-                <span class="link-text">Settings</span>
-            </a>
-        </nav>
-
-        <!-- User Section -->
-        <div class="user-section">
-            <div class="user-profile">
-                <div class="avatar-circle">
-                    <span id="userInitial">A</span>
-                </div>
-                <div class="user-info d-flex flex-column" style="min-width: 0;">
-                    <span class="fw-medium text-dark text-truncate" id="userName" style="font-size: 0.875rem;">Loading...</span>
-                    <span class="text-muted text-truncate" id="userEmail" style="font-size: 0.75rem;">Loading...</span>
-                </div>
-            </div>
-            
-            <a href="/" class="logout-btn text-decoration-none">
-                <i class="bi bi-box-arrow-right" style="width: 1.25rem; text-align: center;"></i>
-                <span class="logout-text ms-2" style="font-size: 0.875rem;">Back to Site</span>
-            </a>
-        </div>
-    </aside>
+    <!-- Sidebar -->
+    {% include 'admin/Sidebar.html' %}
 
     <main id="mainContent" class="main-content">
     <div class="max-w-7xl mx-auto space-y-8">
@@ -179,22 +117,12 @@
     </div>
 
     <script>
-        // Mock Data
-        const mockPredictions = [
-            { id: '1', text: 'Scientists discover new species of deep-sea fish with bioluminescent properties in the Mariana Trench.', prediction: 'Real', confidence: 0.94, votesUp: 45, votesDown: 3, createdAt: '2024-01-15' },
-            { id: '2', text: 'BREAKING: Government secretly installing mind-control chips in all new smartphones.', prediction: 'Fake', confidence: 0.98, votesUp: 12, votesDown: 156, createdAt: '2024-01-14' },
-            { id: '3', text: 'Climate report shows significant reduction in Arctic ice coverage over the past decade.', prediction: 'Real', confidence: 0.89, votesUp: 78, votesDown: 5, createdAt: '2024-01-13' },
-            { id: '4', text: 'Local bakery wins international award for their innovative sourdough bread recipe.', prediction: 'Real', confidence: 0.76, votesUp: 23, votesDown: 8, createdAt: '2024-01-12' },
-            { id: '5', text: 'Miracle cure found! Drinking lemon water before bed eliminates all diseases.', prediction: 'Fake', confidence: 0.99, votesUp: 2, votesDown: 234, createdAt: '2024-01-11' }
-        ];
-
-        const mockActivityLogs = [
-            { id: '1', details: 'User submitted new article for analysis', createdAt: '2024-01-15T10:30:00' },
-            { id: '2', details: 'User upvoted prediction #1', createdAt: '2024-01-15T11:00:00' },
-            { id: '3', details: 'User flagged prediction #4 as incorrect', createdAt: '2024-01-14T15:20:00' },
-            { id: '4', details: 'User logged in successfully', createdAt: '2024-01-14T09:00:00' },
-            { id: '5', details: 'User submitted new article for analysis', createdAt: '2024-01-13T14:45:00' }
-        ];
+        // Data from Backend
+        const predictionsData = JSON.parse('{{ predictions_json|escapejs }}');
+        const activityData = JSON.parse('{{ activity_json|escapejs }}');
+        const statsInfo = JSON.parse('{{ stats_json|escapejs }}');
+        const realCount = Number("{{ real_count|default:0 }}");
+        const fakeCount = Number("{{ fake_count|default:0 }}");
 
         // Initialization
         window.onload = () => {
@@ -208,10 +136,10 @@
         function renderStats() {
             const container = document.getElementById('stats-grid');
             const stats = [
-                { title: 'Total Predictions', value: mockPredictions.length, icon: 'file-text', trend: 12 },
-                { title: 'Active Users', value: 4, icon: 'users', trend: 8 },
-                { title: 'Pending Feedback', value: 2, icon: 'message-square' },
-                { title: 'Accuracy Rate', value: '94%', icon: 'trending-up', trend: 2 }
+                { title: 'Total Predictions', value: statsInfo.total_predictions, icon: 'file-text' },
+                { title: 'Active Users', value: statsInfo.active_users, icon: 'users' },
+                { title: 'Pending Feedback', value: statsInfo.pending_feedback, icon: 'message-square' },
+                { title: 'Accuracy Rate', value: statsInfo.accuracy_rate + '%', icon: 'trending-up' }
             ];
 
             container.innerHTML = stats.map(stat => `
@@ -220,10 +148,6 @@
                         <div>
                             <p class="text-sm text-gray-500 font-medium">${stat.title}</p>
                             <p class="text-3xl font-bold text-gray-900 mt-1">${stat.value}</p>
-                            ${stat.trend ? `
-                                <p class="text-sm mt-2 font-medium text-success">
-                                    ↑ ${stat.trend}% from last week
-                                </p>` : `<p class="text-sm mt-2 font-medium text-gray-400">Stable this week</p>`}
                         </div>
                         <div class="p-3 rounded-lg bg-blue-50">
                             <i data-lucide="${stat.icon}" class="h-6 w-6 text-blue-600"></i>
@@ -234,14 +158,18 @@
         }
 
         function renderDistribution() {
-            const total = mockPredictions.length;
-            const real = mockPredictions.filter(p => p.prediction === 'Real').length;
-            const fake = mockPredictions.filter(p => p.prediction === 'Fake').length;
-            
+            const total = realCount + fakeCount;
             const container = document.getElementById('distribution-container');
+            
+            // Handle zero data case
+            if (total === 0) {
+                 container.innerHTML = '<p class="text-gray-500 text-sm">No predictions yet.</p>';
+                 return;
+            }
+
             const items = [
-                { label: 'Real', count: real, color: 'success', icon: 'check-circle' },
-                { label: 'Fake', count: fake, color: 'destructive', icon: 'x-circle' }
+                { label: 'Real', count: realCount, color: 'success', icon: 'check-circle' },
+                { label: 'Fake', count: fakeCount, color: 'destructive', icon: 'x-circle' }
             ];
 
             container.innerHTML = items.map(item => {
@@ -264,7 +192,7 @@
 
         function renderActivity() {
             const container = document.getElementById('activity-logs');
-            container.innerHTML = mockActivityLogs.map(log => `
+            container.innerHTML = activityData.map(log => `
                 <div class="flex items-start gap-4 py-3 border-b border-gray-100 last:border-0 hover:bg-gray-50 px-2 rounded-lg transition-colors">
                     <div class="p-2 rounded-md bg-blue-50">
                         <i data-lucide="clock" class="h-4 w-4 text-blue-600"></i>
@@ -279,7 +207,7 @@
 
         function renderPredictions() {
             const body = document.getElementById('predictions-body');
-            body.innerHTML = mockPredictions.map(pred => `
+            body.innerHTML = predictionsData.map(pred => `
                 <tr class="hover:bg-gray-50 transition-colors">
                     <td class="px-6 py-4">
                         <p class="text-sm text-gray-900 line-clamp-1 max-w-xs">${pred.text}</p>

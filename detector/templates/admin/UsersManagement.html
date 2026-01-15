@@ -112,12 +112,8 @@
 
     <script>
         // Mock Data
-        const mockUsers = [
-            { id: '1', username: 'john_doe', email: 'john@example.com', isAdmin: false, createdAt: '2024-01-01' },
-            { id: '2', username: 'jane_smith', email: 'jane@example.com', isAdmin: false, createdAt: '2024-01-02' },
-            { id: '3', username: 'bob_wilson', email: 'bob@example.com', isAdmin: false, createdAt: '2024-01-03' },
-            { id: '4', username: 'admin', email: 'admin@example.com', isAdmin: true, createdAt: '2023-12-01' },
-        ];
+        // Data from Backend
+        const users = JSON.parse('{{ users_json|escapejs }}');
 
         let searchQuery = '';
 
@@ -131,7 +127,7 @@
             const list = document.getElementById('usersList');
             const summary = document.getElementById('summary');
             
-            const filteredUsers = mockUsers.filter(user =>
+            const filteredUsers = users.filter(user =>
                 user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 user.email.toLowerCase().includes(searchQuery.toLowerCase())
             );
@@ -189,7 +185,7 @@
                 </tr>
             `).join('');
 
-            summary.textContent = `Showing ${filteredUsers.length} of ${mockUsers.length} users`;
+            summary.textContent = `Showing ${filteredUsers.length} of ${users.length} users`;
             refreshIcons();
         }
 

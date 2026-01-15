@@ -129,13 +129,8 @@
     </div>
 
     <script>
-        const mockPredictions = [
-            { id: '1', text: 'Scientists discover new species of deep-sea fish with bioluminescent properties in the Mariana Trench...', linkUrl: '#', prediction: 'Real', confidence: 0.94, votesUp: 45, votesDown: 3, isCorrection: false, createdAt: '2024-01-15' },
-            { id: '2', text: 'BREAKING: Government secretly installing mind-control chips in all new smartphones...', linkUrl: null, prediction: 'Fake', confidence: 0.98, votesUp: 12, votesDown: 156, isCorrection: false, createdAt: '2024-01-14' },
-            { id: '3', text: 'Climate report shows significant reduction in Arctic ice coverage over the past decade...', linkUrl: '#', prediction: 'Real', confidence: 0.89, votesUp: 78, votesDown: 5, isCorrection: false, createdAt: '2024-01-13' },
-            { id: '4', text: 'Local bakery wins international award for their innovative sourdough bread recipe...', linkUrl: null, prediction: 'Real', confidence: 0.76, votesUp: 23, votesDown: 8, isCorrection: true, createdAt: '2024-01-12' },
-            { id: '5', text: 'Miracle cure found! Drinking lemon water before bed eliminates all diseases within 30 days...', linkUrl: null, prediction: 'Fake', confidence: 0.99, votesUp: 2, votesDown: 234, isCorrection: false, createdAt: '2024-01-11' }
-        ];
+        // Mock Data Removed - Using Backend Data
+        const predictions = JSON.parse('{{ predictions_json|escapejs }}');
 
         let searchQuery = '';
         let filterType = 'all';
@@ -144,13 +139,13 @@
             const body = document.getElementById('predictions-body');
             const summary = document.getElementById('table-summary');
             
-            const filtered = mockPredictions.filter(p => {
+            const filtered = predictions.filter(p => {
                 const matchSearch = p.text.toLowerCase().includes(searchQuery.toLowerCase());
                 const matchFilter = filterType === 'all' || p.prediction === filterType;
                 return matchSearch && matchFilter;
             });
 
-            summary.textContent = `Showing ${filtered.length} of ${mockPredictions.length} predictions`;
+            summary.textContent = `Showing ${filtered.length} of ${predictions.length} predictions`;
 
             body.innerHTML = filtered.map(pred => `
                 <tr class="hover:bg-gray-50 transition-colors group">

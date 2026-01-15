@@ -77,7 +77,7 @@
                         <i data-lucide="check-circle" class="h-6 w-6 text-success"></i>
                     </div>
                     <div>
-                        <p class="text-2xl font-bold text-gray-900">24</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ stats.approved_week }}</p>
                         <p class="text-sm font-medium text-gray-500">Approved This Week</p>
                     </div>
                 </div>
@@ -89,7 +89,7 @@
                         <i data-lucide="x-circle" class="h-6 w-6 text-destructive"></i>
                     </div>
                     <div>
-                        <p class="text-2xl font-bold text-gray-900">8</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ stats.rejected_week }}</p>
                         <p class="text-sm font-medium text-gray-500">Rejected This Week</p>
                     </div>
                 </div>
@@ -112,35 +112,26 @@
     </div>
 
     <script>
-        // Data from mockdata.ts
-        const mockPredictions = [
-            { id: '1', text: 'Scientists discover new species of deep-sea fish with bioluminescent properties in the Mariana Trench.', prediction: 'Real' },
-            { id: '4', text: 'Local bakery wins international award for their innovative sourdough bread recipe that uses a 200-year-old starter culture.', prediction: 'Real' }
-        ];
-
-        let mockFeedback = [
-            { id: 'f1', predictionId: '4', correctedLabel: 'Real', note: 'The bakery story was verified by multiple local news sources.', userId: 'user_992', createdAt: '2024-01-12T14:20:00' },
-            { id: 'f2', predictionId: '1', correctedLabel: 'Real', note: 'Confirmed by peer-reviewed journal.', userId: 'user_441', createdAt: '2024-01-15T09:45:00' }
-        ];
+        // Data from Backend
+        let feedbackQueue = JSON.parse('{{ feedback_json|escapejs }}');
 
         function renderFeedback() {
             const container = document.getElementById('feedback-list');
             const emptyState = document.getElementById('empty-state');
             const countLabel = document.getElementById('pending-count');
 
-            countLabel.innerText = mockFeedback.length;
+            countLabel.innerText = feedbackQueue.length;
 
-            if (mockFeedback.length === 0) {
+            if (feedbackQueue.length === 0) {
                 container.innerHTML = '';
                 emptyState.classList.remove('hidden');
                 return;
             }
 
             emptyState.classList.add('hidden');
-            container.innerHTML = mockFeedback.map(feedback => {
-                const prediction = mockPredictions.find(p => p.id === feedback.predictionId);
-                if (!prediction) return '';
-
+            container.innerHTML = feedbackQueue.map(feedback => {
+                const prediction = feedback.prediction;
+                
                 return `
                 <div id="card-${feedback.id}" class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:border-gray-300 transition-all">
                     <div class="flex flex-col lg:flex-row lg:items-start gap-6">
