@@ -129,47 +129,8 @@
 <body>
 
     <!-- Navbar Component -->
-    <nav class="navbar-custom">
-        <div class="container navbar-content">
-            
-            <!-- 1. Logo -->
-            <a href="/" class="logo-link">
-                <div class="logo-icon-box">
-                    <i class="bi bi-shield-check text-dark"></i>
-                </div>
-                <span class="fw-bold fs-5">TruthGuard</span>
-            </a>
-
-            <!-- 2. Desktop Navigation (Hidden on Mobile) -->
-            <div class="d-none d-md-flex align-items-center gap-4">
-                <a href="/" class="nav-link-custom active">Home</a>
-                <a href="{% url 'predictions_list' %}" class="nav-link-custom">All Predictions</a>
-            </div>
-
-            <!-- 3. Auth Section (Hidden on Mobile) -->
-            <div class="d-none d-md-flex align-items-center gap-3" id="desktopAuthSection">
-                <!-- Javascript will populate this based on state -->
-            </div>
-
-            <!-- 4. Mobile Menu Button -->
-            <button class="btn btn-ghost-custom d-md-none p-2" id="mobileMenuBtn">
-                <i class="bi bi-list fs-5" id="mobileMenuIcon"></i>
-            </button>
-        </div>
-
-        <!-- 5. Mobile Menu Dropdown -->
-        <div class="container mobile-menu" id="mobileMenu">
-            <div class="d-flex flex-column gap-2">
-                <a href="/" class="mobile-nav-link active">Home</a>
-                <a href="{% url 'predictions_list' %}" class="mobile-nav-link">All Predictions</a>
-                
-                <!-- Mobile Auth Section -->
-                <div class="border-top pt-3 mt-2" id="mobileAuthSection">
-                    <!-- Javascript will populate this -->
-                </div>
-            </div>
-        </div>
-    </nav>
+    <!-- Navbar Component -->
+    {% include 'users/UserNavbar.html' %}
 
     <div class="container px-4 py-5">
         <div class="d-flex justify-content-center">
@@ -272,65 +233,5 @@
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Navbar Logic -->
-    <script>
-    (function() {
-         // --- State Management ---
-         const navState = {
-            isAuthenticated: false, // Update this based on real auth
-            mobileMenuOpen: false,
-            user: {
-                username: 'demo_user',
-                isAdmin: true 
-            }
-        };
-
-        // --- DOM Elements ---
-        const desktopAuthContainer = document.getElementById('desktopAuthSection');
-        const mobileAuthContainer = document.getElementById('mobileAuthSection');
-        const mobileMenu = document.getElementById('mobileMenu');
-        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-        const mobileMenuIcon = document.getElementById('mobileMenuIcon');
-
-        // --- Render Functions ---
-        function renderNavbar() {
-            // Guest View
-            const guestHtml = `
-                <a href="{% url 'login' %}" class="btn btn-ghost-custom btn-sm">Login</a>
-                <a href="{% url 'signup' %}" class="btn btn-default-custom btn-sm">Sign Up</a>
-            `;
-            desktopAuthContainer.innerHTML = guestHtml;
-
-            // Mobile Guest View
-            mobileAuthContainer.innerHTML = `
-                <div class="d-flex gap-2">
-                    <a href="{% url 'login' %}" class="btn btn-ghost-custom flex-grow-1">Login</a>
-                    <a href="{% url 'signup' %}" class="btn btn-default-custom flex-grow-1">Sign Up</a>
-                </div>
-            `;
-        }
-
-        // --- Event Handlers ---
-        function toggleMobileMenu() {
-            navState.mobileMenuOpen = !navState.mobileMenuOpen;
-            
-            if (navState.mobileMenuOpen) {
-                mobileMenu.classList.add('open');
-                mobileMenuIcon.classList.remove('bi-list');
-                mobileMenuIcon.classList.add('bi-x-lg');
-            } else {
-                mobileMenu.classList.remove('open');
-                mobileMenuIcon.classList.remove('bi-x-lg');
-                mobileMenuIcon.classList.add('bi-list');
-            }
-        }
-
-        if(mobileMenuBtn) {
-            mobileMenuBtn.addEventListener('click', toggleMobileMenu);
-        }
-
-        // Initial Render
-        renderNavbar();
-    })();
-    </script>
 </body>
 </html>

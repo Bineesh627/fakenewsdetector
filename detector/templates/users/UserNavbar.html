@@ -1,355 +1,108 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Navbar - TruthGuard</title>
-    
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    
-    <style>
-        /* --- CSS Variables (Matching Project Theme) --- */
-        :root {
-            --background: #ffffff;
-            --foreground: #0f172a;
-            --primary: #0f172a;
-            --primary-fg: #ffffff;
-            --muted: #f1f5f9;
-            --muted-foreground: #64748b;
-            --border: #e2e8f0;
-            --card-bg-opacity: rgba(255, 255, 255, 0.95);
-        }
-
-        body {
-            background-color: #f8f9fa;
-            font-family: system-ui, -apple-system, sans-serif;
-            color: var(--foreground);
-            padding-top: 5rem; /* Space for fixed navbar */
-        }
-
-        /* --- Navbar Styles --- */
-        .navbar-custom {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1050;
-            background-color: var(--card-bg-opacity);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border-bottom: 1px solid var(--border);
-            height: 4rem; /* h-16 */
-        }
-
-        .navbar-content {
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        /* Logo */
-        .logo-link {
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--foreground);
-            transition: opacity 0.2s;
-        }
-        .logo-link:hover { opacity: 0.8; }
+{% load static %}
+<!-- Navbar Component -->
+<nav class="navbar-custom">
+    <div class="container navbar-content">
         
-        .logo-icon-box {
-            padding: 0.5rem;
-            border-radius: 0.5rem;
-            background-color: rgba(15, 23, 42, 0.1); /* primary/10 */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background-color 0.2s;
-        }
-        .logo-link:hover .logo-icon-box {
-            background-color: rgba(15, 23, 42, 0.2);
-        }
+        <!-- 1. Logo -->
+        <a href="/" class="logo-link">
+            <div class="logo-icon-box">
+                <i class="bi bi-shield-check text-dark"></i>
+            </div>
+            <span class="fw-bold fs-5">TruthGuard</span>
+        </a>
 
-        /* Navigation Links */
-        .nav-link-custom {
-            font-size: 0.875rem; /* text-sm */
-            font-weight: 500;
-            color: var(--muted-foreground);
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-        .nav-link-custom:hover {
-            color: var(--primary);
-        }
-        .nav-link-custom.active {
-            color: var(--primary);
-        }
+        <!-- 2. Desktop Navigation (Hidden on Mobile) -->
+        <div class="d-none d-md-flex align-items-center gap-4">
+            <a href="/" class="nav-link-custom {% if request.path == '/' %}active{% endif %}">Home</a>
+            <a href="{% url 'predictions_list' %}" class="nav-link-custom {% if 'predictions' in request.path %}active{% endif %}">All Predictions</a>
+        </div>
 
-        /* Buttons (Mimicking shadcn/ui variants) */
-        .btn-ghost-custom {
-            background: transparent;
-            color: var(--foreground);
-            border: none;
-            padding: 0.5rem 1rem;
-            font-size: 0.875rem;
-            font-weight: 500;
-            border-radius: 0.375rem;
-            transition: background 0.2s;
-        }
-        .btn-ghost-custom:hover {
-            background-color: var(--muted);
-        }
-
-        .btn-default-custom {
-            background-color: var(--primary);
-            color: var(--primary-fg);
-            border: none;
-            padding: 0.5rem 1rem;
-            font-size: 0.875rem;
-            font-weight: 500;
-            border-radius: 0.375rem;
-            transition: opacity 0.2s;
-        }
-        .btn-default-custom:hover {
-            opacity: 0.9;
-        }
-
-        .btn-outline-custom {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--foreground);
-            padding: 0.5rem 1rem;
-            font-size: 0.875rem;
-            font-weight: 500;
-            border-radius: 0.375rem;
-            transition: background 0.2s;
-        }
-        .btn-outline-custom:hover {
-            background-color: var(--muted);
-        }
-
-        /* Mobile Menu */
-        .mobile-menu {
-            border-top: 1px solid var(--border);
-            background-color: var(--background);
-            padding: 1rem 0;
-            display: none; /* Hidden by default */
-            animation: fadeIn 0.2s ease-out;
-        }
-        .mobile-menu.open {
-            display: block;
-        }
-
-        .mobile-nav-link {
-            display: block;
-            padding: 0.75rem 0;
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: var(--muted-foreground);
-            text-decoration: none;
-        }
-        .mobile-nav-link.active {
-            color: var(--primary);
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-    </style>
-</head>
-<body>
-
-    <!-- Navbar Component -->
-    <nav class="navbar-custom">
-        <div class="container navbar-content">
-            
-            <!-- 1. Logo -->
-            <a href="/" class="logo-link">
-                <div class="logo-icon-box">
-                    <i class="bi bi-shield-check text-dark"></i>
+        <!-- 3. Auth Section (Hidden on Mobile) -->
+        <div class="d-none d-md-flex align-items-center gap-3" id="desktopAuthSection">
+            {% if user.is_authenticated %}
+                <div class="d-flex align-items-center gap-2 text-sm text-muted" style="font-size: 0.875rem;">
+                    <i class="bi bi-person text-secondary"></i>
+                    <span class="fw-medium text-dark">{{ user.username }}</span>
                 </div>
-                <span class="fw-bold fs-5">TruthGuard</span>
-            </a>
-
-            <!-- 2. Desktop Navigation (Hidden on Mobile) -->
-            <div class="d-none d-md-flex align-items-center gap-4">
-                <a href="/" class="nav-link-custom active">Home</a>
-                <a href="/predictions" class="nav-link-custom">All Predictions</a>
-            </div>
-
-            <!-- 3. Auth Section (Hidden on Mobile) -->
-            <div class="d-none d-md-flex align-items-center gap-3" id="desktopAuthSection">
-                <!-- Javascript will populate this based on state -->
-            </div>
-
-            <!-- 4. Mobile Menu Button -->
-            <button class="btn btn-ghost-custom d-md-none p-2" id="mobileMenuBtn">
-                <i class="bi bi-list fs-5" id="mobileMenuIcon"></i>
-            </button>
-        </div>
-
-        <!-- 5. Mobile Menu Dropdown -->
-        <div class="container mobile-menu" id="mobileMenu">
-            <div class="d-flex flex-column gap-2">
-                <a href="/" class="mobile-nav-link active">Home</a>
-                <a href="/predictions" class="mobile-nav-link">All Predictions</a>
-                
-                <!-- Mobile Auth Section -->
-                <div class="border-top pt-3 mt-2" id="mobileAuthSection">
-                    <!-- Javascript will populate this -->
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Main Content Placeholder (To demonstrate layout) -->
-    <main class="container mt-4">
-        <div class="p-5 border border-dashed rounded-4 text-center bg-white">
-            <h1 class="h3 mb-3">Welcome to TruthGuard</h1>
-            <p class="text-muted mb-4">Toggle the authentication state below to see how the navbar changes.</p>
-            
-            <button class="btn btn-outline-primary" id="toggleAuthBtn">
-                Switch to <span id="authToggleText">Logged In</span> Mode
-            </button>
-        </div>
-    </main>
-
-    <!-- JavaScript Logic -->
-    <script>
-        // --- State Management ---
-        const state = {
-            isAuthenticated: false,
-            mobileMenuOpen: false,
-            user: {
-                username: 'demo_user',
-                isAdmin: true // Set to false to test non-admin view
-            }
-        };
-
-        // --- DOM Elements ---
-        const desktopAuthContainer = document.getElementById('desktopAuthSection');
-        const mobileAuthContainer = document.getElementById('mobileAuthSection');
-        const mobileMenu = document.getElementById('mobileMenu');
-        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-        const mobileMenuIcon = document.getElementById('mobileMenuIcon');
-        const toggleAuthBtn = document.getElementById('toggleAuthBtn');
-        const authToggleText = document.getElementById('authToggleText');
-
-        // --- Render Functions ---
-
-        function renderNavbar() {
-            // Render Desktop Auth
-            if (state.isAuthenticated) {
-                // Logged In View
-                const adminLink = state.user.isAdmin 
-                    ? `<a href="/admin" class="btn btn-outline-custom btn-sm">Admin Panel</a>` 
-                    : '';
-
-                const authHtml = `
-                    <div class="d-flex align-items-center gap-2 text-sm text-muted" style="font-size: 0.875rem;">
-                        <i class="bi bi-person text-secondary"></i>
-                        <span class="fw-medium text-dark">${state.user.username}</span>
-                    </div>
-                    ${adminLink}
-                    <button class="btn btn-ghost-custom btn-sm" onclick="logout()">
+                {% if user.is_staff %}
+                    <a href="/admin" class="btn btn-outline-custom btn-sm">Admin Panel</a>
+                {% endif %}
+                <form action="{% url 'logout' %}" method="post" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-ghost-custom btn-sm">
                         <i class="bi bi-box-arrow-right me-1"></i> Logout
                     </button>
-                `;
-                desktopAuthContainer.innerHTML = authHtml;
-                
-                // Mobile Auth View
-                mobileAuthContainer.innerHTML = `
+                </form>
+            {% else %}
+                <a href="{% url 'login' %}" class="btn btn-ghost-custom btn-sm">Login</a>
+                <a href="{% url 'signup' %}" class="btn btn-default-custom btn-sm">Sign Up</a>
+            {% endif %}
+        </div>
+
+        <!-- 4. Mobile Menu Button -->
+        <button class="btn btn-ghost-custom d-md-none p-2" id="mobileMenuBtn">
+            <i class="bi bi-list fs-5" id="mobileMenuIcon"></i>
+        </button>
+    </div>
+
+    <!-- 5. Mobile Menu Dropdown -->
+    <div class="container mobile-menu" id="mobileMenu">
+        <div class="d-flex flex-column gap-2">
+            <a href="/" class="mobile-nav-link {% if request.path == '/' %}active{% endif %}">Home</a>
+            <a href="{% url 'predictions_list' %}" class="mobile-nav-link {% if 'predictions' in request.path %}active{% endif %}">All Predictions</a>
+            
+            <!-- Mobile Auth Section -->
+            <div class="border-top pt-3 mt-2" id="mobileAuthSection">
+                {% if user.is_authenticated %}
                     <div class="d-flex align-items-center gap-2 mb-3 text-sm">
                         <i class="bi bi-person text-secondary"></i>
-                        <span class="fw-medium">${state.user.username}</span>
+                        <span class="fw-medium">{{ user.username }}</span>
                     </div>
-                    ${state.user.isAdmin ? `
+                    {% if user.is_staff %}
                         <a href="/admin" class="btn btn-outline-custom w-100 mb-2">Admin Panel</a>
-                    ` : ''}
-                    <button class="btn btn-ghost-custom w-100 text-start ps-0" onclick="logout()">
-                        <i class="bi bi-box-arrow-right me-2"></i> Logout
-                    </button>
-                `;
-
-            } else {
-                // Guest View
-                const guestHtml = `
-                    <a href="/login" class="btn btn-ghost-custom btn-sm">Login</a>
-                    <a href="/signup" class="btn btn-default-custom btn-sm">Sign Up</a>
-                `;
-                desktopAuthContainer.innerHTML = guestHtml;
-
-                // Mobile Guest View
-                mobileAuthContainer.innerHTML = `
+                    {% endif %}
+                    <form action="{% url 'logout' %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-ghost-custom w-100 text-start ps-0">
+                            <i class="bi bi-box-arrow-right me-2"></i> Logout
+                        </button>
+                    </form>
+                {% else %}
                     <div class="d-flex gap-2">
-                        <a href="/login" class="btn btn-ghost-custom flex-grow-1">Login</a>
-                        <a href="/signup" class="btn btn-default-custom flex-grow-1">Sign Up</a>
+                        <a href="{% url 'login' %}" class="btn btn-ghost-custom flex-grow-1">Login</a>
+                        <a href="{% url 'signup' %}" class="btn btn-default-custom flex-grow-1">Sign Up</a>
                     </div>
-                `;
-            }
-        }
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>
+
+<script>
+    (function () {
+        // --- DOM Elements ---
+        const mobileMenu = document.getElementById("mobileMenu");
+        const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+        const mobileMenuIcon = document.getElementById("mobileMenuIcon");
+        let mobileMenuOpen = false;
 
         // --- Event Handlers ---
-
         function toggleMobileMenu() {
-            state.mobileMenuOpen = !state.mobileMenuOpen;
-            
-            if (state.mobileMenuOpen) {
-                mobileMenu.classList.add('open');
-                mobileMenuIcon.classList.remove('bi-list');
-                mobileMenuIcon.classList.add('bi-x-lg');
+            mobileMenuOpen = !mobileMenuOpen;
+
+            if (mobileMenuOpen) {
+                mobileMenu.classList.add("open");
+                mobileMenuIcon.classList.remove("bi-list");
+                mobileMenuIcon.classList.add("bi-x-lg");
             } else {
-                mobileMenu.classList.remove('open');
-                mobileMenuIcon.classList.remove('bi-x-lg');
-                mobileMenuIcon.classList.add('bi-list');
+                mobileMenu.classList.remove("open");
+                mobileMenuIcon.classList.remove("bi-x-lg");
+                mobileMenuIcon.classList.add("bi-list");
             }
         }
 
-        // Function exposed to window for inline onclicks
-        window.logout = function() {
-            state.isAuthenticated = false;
-            updateUI();
-            alert('Logged out successfully');
-        };
-
-        function login() {
-            state.isAuthenticated = true;
-            updateUI();
+        if (mobileMenuBtn) {
+            mobileMenuBtn.addEventListener("click", toggleMobileMenu);
         }
-
-        function updateUI() {
-            renderNavbar();
-            
-            // Update Demo Toggle Button Text
-            if (state.isAuthenticated) {
-                authToggleText.textContent = "Guest";
-            } else {
-                authToggleText.textContent = "Logged In";
-            }
-        }
-
-        // --- Initialization ---
-
-        toggleAuthBtn.addEventListener('click', () => {
-            state.isAuthenticated = !state.isAuthenticated;
-            updateUI();
-        });
-
-        mobileMenuBtn.addEventListener('click', toggleMobileMenu);
-
-        // Initial Render
-        updateUI();
-
-    </script>
-
-    <!-- Bootstrap JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+    })();
+</script>

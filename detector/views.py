@@ -1,5 +1,7 @@
 from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
@@ -109,10 +111,10 @@ def signup(request):
         
         # Check if user already exists
         if User.objects.filter(username=username).exists():
-             return render(request, 'users/signup.html', {'error': 'Username already taken'})
+             return render(request, 'auth/signup.html', {'error': 'Username already taken'})
         
         if User.objects.filter(email=email).exists():
-            return render(request, 'users/signup.html', {'error': 'Email already registered'})
+            return render(request, 'auth/signup.html', {'error': 'Email already registered'})
             
         try:
             # Create user with username and email
@@ -120,9 +122,9 @@ def signup(request):
             login(request, user)
             return redirect('home')
         except Exception as e:
-            return render(request, 'users/signup.html', {'error': 'Error creating account'})
+            return render(request, 'auth/signup.html', {'error': 'Error creating account'})
             
-    return render(request, 'users/signup.html')
+    return render(request, 'auth/signup.html')
 
 def login_view(request):
     if request.method == 'POST':
@@ -139,12 +141,13 @@ def login_view(request):
                 login(request, user)
                 return redirect('home')
             else:
-                 return render(request, 'users/login.html', {'error': 'Invalid email or password'})
+                 return render(request, 'auth/login.html', {'error': 'Invalid email or password'})
         except User.DoesNotExist:
-             return render(request, 'users/login.html', {'error': 'Invalid email or password'})
+             return render(request, 'auth/login.html', {'error': 'Invalid email or password'})
 
-    return render(request, 'users/Login.html')
+    return render(request, 'auth/login.html')
 
+@login_required(login_url='login')
 def feedback_view(request, pred_id):
     try:
         pred = Prediction.objects.annotate(
@@ -161,7 +164,7 @@ def feedback_view(request, pred_id):
         
         Feedback.objects.create(
             prediction=pred,
-            user=request.user if request.user.is_authenticated else None,
+            user=request.user,
             corrected_label=corrected_label,
             feedback_note=feedback_note
         )
@@ -184,9 +187,8 @@ def feedback_view(request, pred_id):
     predictions_json = json.dumps(prediction_data, cls=DjangoJSONEncoder)
 
     return render(request, 'users/Feedback.html', {'predictions_json': predictions_json, 'pred_id': pred_id})
-    return render(request, 'users/Feedback.html', {'pred': pred})
 
-@login_required
+@login_required(login_url='login')
 def vote(request, pred_id, vote_type):
     pred = Prediction.objects.get(id=pred_id)
     vote_type = vote_type.upper()
@@ -201,6 +203,7 @@ def vote(request, pred_id, vote_type):
 import json
 from django.core.serializers.json import DjangoJSONEncoder
 
+@login_required(login_url='login')
 def predictions_list(request):
     # Annotate with vote counts
     preds_qs = Prediction.objects.annotate(
@@ -230,6 +233,7 @@ def predictions_list(request):
     
     return render(request, 'users/PredictionList.html', {'predictions_json': predictions_json})
 
+@login_required(login_url='login')
 def prediction_detail(request, pred_id):
     # Get specific prediction and annotate
     p = Prediction.objects.annotate(
