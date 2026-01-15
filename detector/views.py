@@ -61,6 +61,8 @@ def scrape_text_from_url(url):
         return None
 
 def home(request):
+    if request.user.is_authenticated and request.user.is_staff:
+        return redirect('admin_dashboard')
     if request.method == 'POST':
         link_url = request.POST.get('news_link')
         input_text = request.POST.get('news_text')
@@ -104,6 +106,8 @@ def home(request):
     return render(request, 'users/home.html', {'popular': popular})
 
 def signup(request):
+    if request.user.is_authenticated and request.user.is_staff:
+        return redirect('admin_dashboard')
     if request.method == 'POST':
         username = request.POST.get('username')
         email = request.POST.get('email')
@@ -127,6 +131,11 @@ def signup(request):
     return render(request, 'auth/signup.html')
 
 def login_view(request):
+    if request.user.is_authenticated:
+        if request.user.is_staff:
+            return redirect('admin_dashboard')
+        return redirect('home')
+        
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
@@ -139,6 +148,8 @@ def login_view(request):
             
             if user is not None:
                 login(request, user)
+                if user.is_staff:
+                    return redirect('admin_dashboard')
                 return redirect('home')
             else:
                  return render(request, 'auth/login.html', {'error': 'Invalid email or password'})
@@ -149,6 +160,8 @@ def login_view(request):
 
 @login_required(login_url='login')
 def feedback_view(request, pred_id):
+    if request.user.is_staff:
+        return redirect('admin_dashboard')
     try:
         pred = Prediction.objects.annotate(
             up_votes=Count('vote', filter=Q(vote__vote_type='UP')),
@@ -190,6 +203,8 @@ def feedback_view(request, pred_id):
 
 @login_required(login_url='login')
 def vote(request, pred_id, vote_type):
+    if request.user.is_staff:
+        return redirect('admin_dashboard')
     pred = Prediction.objects.get(id=pred_id)
     vote_type = vote_type.upper()
     if vote_type in ['UP', 'DOWN']:
@@ -205,6 +220,8 @@ from django.core.serializers.json import DjangoJSONEncoder
 
 @login_required(login_url='login')
 def predictions_list(request):
+    if request.user.is_staff:
+        return redirect('admin_dashboard')
     # Annotate with vote counts
     preds_qs = Prediction.objects.annotate(
         up_votes=Count('vote', filter=Q(vote__vote_type='UP')),
@@ -235,6 +252,8 @@ def predictions_list(request):
 
 @login_required(login_url='login')
 def prediction_detail(request, pred_id):
+    if request.user.is_staff:
+        return redirect('admin_dashboard')
     # Get specific prediction and annotate
     p = Prediction.objects.annotate(
         up_votes=Count('vote', filter=Q(vote__vote_type='UP')),

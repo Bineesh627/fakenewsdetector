@@ -58,9 +58,6 @@
                         <i class="bi bi-person text-secondary"></i>
                         <span class="fw-medium">{{ user.username }}</span>
                     </div>
-                    {% if user.is_staff %}
-                        <a href="/admin" class="btn btn-outline-custom w-100 mb-2">Admin Panel</a>
-                    {% endif %}
                     <form action="{% url 'logout' %}" method="post">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-ghost-custom w-100 text-start ps-0">
