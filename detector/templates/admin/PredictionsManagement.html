@@ -45,7 +45,10 @@
 
     <!-- Bootstrap 5 CSS & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans">
     <!-- Sidebar -->
@@ -122,18 +125,113 @@
 
     <!-- Dropdown Template (Simplified for Vanilla JS) -->
     <div id="context-menu" class="hidden absolute bg-white border border-gray-200 rounded-lg shadow-xl py-1 w-40 z-50">
-        <button class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">View Details</button>
-        <button class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Edit Prediction</button>
+        <button id="ctx-view-btn" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">View Details</button>
+        <button id="ctx-edit-btn" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Edit Prediction</button>
         <div class="border-t border-gray-100 my-1"></div>
-        <button class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 font-medium">Delete</button>
+        <button id="ctx-delete-btn" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 font-medium">Delete</button>
+    </div>
+
+    <!-- View Prediction Modal -->
+    <div class="modal fade" id="viewPredictionModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Prediction Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="fw-bold">Text Content:</label>
+                        <p id="viewText" class="text-gray-700 bg-gray-50 p-3 rounded border"></p>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="fw-bold">Result:</label>
+                            <span id="viewResult" class="badge"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="fw-bold">Confidence:</label>
+                            <span id="viewConfidence"></span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="fw-bold">Votes:</label>
+                            <div>
+                                <span class="text-success me-2"><i class="bi bi-hand-thumbs-up"></i> <span id="viewVotesUp"></span></span>
+                                <span class="text-danger"><i class="bi bi-hand-thumbs-down"></i> <span id="viewVotesDown"></span></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="fw-bold">Created At:</label>
+                            <span id="viewCreated"></span>
+                        </div>
+                    </div>
+                    <div class="mb-3" id="viewLinkContainer">
+                         <label class="fw-bold">Source Link:</label>
+                         <a href="#" id="viewLink" target="_blank" class="text-primary text-decoration-underline">Open Link</a>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Prediction Modal -->
+    <div class="modal fade" id="editPredictionModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Prediction</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editPredictionForm">
+                        <input type="hidden" id="editPredId">
+                        <div class="mb-3">
+                            <label class="form-label">Classification Result</label>
+                            <select class="form-select" id="editResult">
+                                <option value="Real">Real</option>
+                                <option value="Fake">Fake</option>
+                            </select>
+                            <div class="form-text">Manually overriding the model's prediction.</div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="saveEditPredBtn">Save Changes</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
-        // Mock Data Removed - Using Backend Data
+        // Data from Backend
         const predictions = JSON.parse('{{ predictions_json|escapejs }}');
 
         let searchQuery = '';
         let filterType = 'all';
+        let activePredictionId = null; // Track which row is active for context menu
+
+        // CSRF Token Helper
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
 
         function render() {
             const body = document.getElementById('predictions-body');
@@ -193,7 +291,7 @@
                         ${new Date(pred.createdAt).toLocaleDateString()}
                     </td>
                     <td class="px-6 py-4 text-right">
-                        <button onclick="toggleMenu(event)" class="p-1.5 hover:bg-gray-100 rounded-md text-gray-400 hover:text-gray-600 transition-all">
+                        <button onclick="toggleMenu(event, '${pred.id}')" class="p-1.5 hover:bg-gray-100 rounded-md text-gray-400 hover:text-gray-600 transition-all">
                             <i data-lucide="more-vertical" class="h-4 w-4"></i>
                         </button>
                     </td>
@@ -202,6 +300,11 @@
 
             lucide.createIcons();
         }
+
+        // Export Data
+        document.querySelector('.inline-flex.items-center.px-4.py-2.border').addEventListener('click', () => {
+             window.location.href = "{% url 'admin_export_predictions' %}";
+        });
 
         // Event Listeners
         document.getElementById('search-input').addEventListener('input', (e) => {
@@ -216,8 +319,9 @@
 
         // Context Menu Logic
         const menu = document.getElementById('context-menu');
-        function toggleMenu(e) {
+        function toggleMenu(e, id) {
             e.stopPropagation();
+            activePredictionId = id; // Set active ID
             const rect = e.currentTarget.getBoundingClientRect();
             menu.style.top = `${rect.bottom + window.scrollY + 5}px`;
             menu.style.left = `${rect.left + window.scrollX - 120}px`;
@@ -225,6 +329,123 @@
         }
 
         document.addEventListener('click', () => menu.classList.add('hidden'));
+
+        // --- Action Handlers ---
+
+        // View Details
+        document.getElementById('ctx-view-btn').addEventListener('click', async () => {
+             if(!activePredictionId) return;
+             try {
+                const response = await fetch(`/admin-panel/predictions/${activePredictionId}/get/`);
+                const data = await response.json();
+                
+                if(data.success) {
+                    const p = data.prediction;
+                    document.getElementById('viewText').textContent = p.text;
+                    const resBadge = document.getElementById('viewResult');
+                    resBadge.textContent = p.prediction;
+                    resBadge.className = `badge ${p.prediction === 'Real' ? 'bg-success' : 'bg-danger'}`;
+                    
+                    document.getElementById('viewConfidence').textContent = `${Math.round(p.confidence * 100)}%`;
+                    document.getElementById('viewVotesUp').textContent = p.votesUp;
+                    document.getElementById('viewVotesDown').textContent = p.votesDown;
+                    document.getElementById('viewCreated').textContent = new Date(p.createdAt).toLocaleString();
+                    
+                    const linkContainer = document.getElementById('viewLinkContainer');
+                    if(p.linkUrl) {
+                        linkContainer.style.display = 'block';
+                        document.getElementById('viewLink').href = p.linkUrl;
+                    } else {
+                        linkContainer.style.display = 'none';
+                    }
+
+                    new bootstrap.Modal(document.getElementById('viewPredictionModal')).show();
+                } else {
+                    Swal.fire('Error', data.message, 'error');
+                }
+             } catch(e) { console.error(e); Swal.fire('Error', 'Failed to load data', 'error'); }
+        });
+
+        // Edit Prediction (Open Modal)
+        document.getElementById('ctx-edit-btn').addEventListener('click', async () => {
+            if(!activePredictionId) return;
+            // Pre-fill modal
+            const row = predictions.find(p => p.id == activePredictionId); // Use local or fetch? Fetch ensure fresh
+             try {
+                const response = await fetch(`/admin-panel/predictions/${activePredictionId}/get/`);
+                const data = await response.json();
+                if(data.success) {
+                    document.getElementById('editPredId').value = data.prediction.id;
+                    document.getElementById('editResult').value = data.prediction.prediction; 
+                    new bootstrap.Modal(document.getElementById('editPredictionModal')).show();
+                }
+             } catch(e) { console.error(e); }
+        });
+
+        // Save Edit
+        document.getElementById('saveEditPredBtn').addEventListener('click', async () => {
+            const id = document.getElementById('editPredId').value;
+            const prediction = document.getElementById('editResult').value;
+            
+            try {
+                const response = await fetch(`/admin-panel/predictions/${id}/edit/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken
+                    },
+                    body: JSON.stringify({ prediction })
+                });
+                const data = await response.json();
+                if(data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Updated',
+                        text: 'Prediction updated successfully',
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => location.reload());
+                } else {
+                    Swal.fire('Error', data.message, 'error');
+                }
+            } catch(e) { console.error(e); Swal.fire('Error', 'Failed to update', 'error'); }
+        });
+
+        // Delete Prediction
+        document.getElementById('ctx-delete-btn').addEventListener('click', async () => {
+            if(!activePredictionId) return;
+            
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        const response = await fetch(`/admin-panel/predictions/${activePredictionId}/delete/`, {
+                            method: 'POST',
+                            headers: { 'X-CSRFToken': csrftoken }
+                        });
+                        const data = await response.json();
+                        if(data.success) {
+                            Swal.fire(
+                                'Deleted!',
+                                'Record has been deleted.',
+                                'success'
+                            ).then(() => location.reload());
+                        } else {
+                            Swal.fire('Error', data.message, 'error');
+                        }
+                    } catch (e) { 
+                        console.error(e); 
+                        Swal.fire('Error', 'Failed to delete', 'error');
+                    }
+                }
+            });
+        });
 
         // Initial Load
         window.onload = render;

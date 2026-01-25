@@ -15,29 +15,7 @@
             color: #111827;
         }
 
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            right: 0;
-            top: 100%;
-            z-index: 50;
-            min-width: 160px;
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            padding: 4px;
-        }
 
-        .dropdown-content.show {
-            display: block;
-            animation: fadeIn 0.1s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
 
         .user-row:hover {
             background-color: #f3f4f6;
@@ -52,6 +30,8 @@
     <!-- Bootstrap 5 CSS & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans">
     <!-- Sidebar -->
@@ -67,10 +47,110 @@
                 <h1 class="text-3xl font-bold text-gray-900">Users</h1>
                 <p class="text-gray-500">Manage user accounts and permissions</p>
             </div>
-            <button class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm">
-                <i data-lucide="user" class="h-4 w-4 mr-2"></i>
+            <button class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                <i data-lucide="user-plus" class="h-4 w-4 mr-2"></i>
                 Add User
             </button>
+        </div>
+
+        <!-- View User Modal -->
+        <div class="modal fade" id="viewUserModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">User Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="fw-bold">Username:</label>
+                            <span id="viewUsername"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="fw-bold">Email:</label>
+                            <span id="viewEmail"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="fw-bold">Role:</label>
+                            <span id="viewRole"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="fw-bold">Joined:</label>
+                            <span id="viewJoined"></span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit User Modal -->
+        <div class="modal fade" id="editUserModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Edit User</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editUserForm">
+                            <input type="hidden" id="editUserId">
+                            <div class="mb-3">
+                                <label class="form-label">Username</label>
+                                <input type="text" class="form-control" id="editUsername" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" id="editEmail" required>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="saveEditUserBtn">Save Changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Add User Modal -->
+        <div class="modal fade" id="addUserModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Add New User</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="addUserForm">
+                            <div class="mb-3">
+                                <label class="form-label">Username</label>
+                                <input type="text" class="form-control" id="addUsername" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" id="addEmail" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Password</label>
+                                <input type="password" class="form-control" id="addPassword" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Role</label>
+                                <select class="form-select" id="addRole">
+                                    <option value="user">User</option>
+                                    <option value="admin">Admin</option>
+                                </select>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary">Save User</button>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Search -->
@@ -168,18 +248,18 @@
                             ${new Date(user.createdAt).toLocaleDateString()}
                         </div>
                     </td>
-                    <td class="px-6 py-4 text-right relative">
-                        <button onclick="toggleDropdown(event, '${user.id}')" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                            <i data-lucide="more-vertical" class="h-4 w-4 text-gray-500"></i>
-                        </button>
-                        <div id="dropdown-${user.id}" class="dropdown-content text-left">
-                            <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 text-left">View Profile</button>
-                            <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 text-left">Edit User</button>
-                            <button class="w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 text-left">
-                                ${user.isAdmin ? 'Remove Admin' : 'Make Admin'}
+                    <td class="px-6 py-4 text-right">
+                        <div class="dropdown">
+                            <button class="btn btn-link link-dark p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i data-lucide="more-vertical" class="h-4 w-4 text-gray-500"></i>
                             </button>
-                            <div class="h-px bg-gray-100 my-1"></div>
-                            <button class="w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 text-left">Delete User</button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="#" onclick="viewUser('${user.id}')">View Profile</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="editUser('${user.id}')">Edit User</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="toggleAdmin('${user.id}')">${user.isAdmin ? 'Remove Admin' : 'Make Admin'}</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="#" onclick="deleteUser('${user.id}')">Delete User</a></li>
+                            </ul>
                         </div>
                     </td>
                 </tr>
@@ -189,21 +269,7 @@
             refreshIcons();
         }
 
-        // Dropdown Logic
-        function toggleDropdown(event, userId) {
-            event.stopPropagation();
-            const allDropdowns = document.querySelectorAll('.dropdown-content');
-            allDropdowns.forEach(d => {
-                if(d.id !== `dropdown-${userId}`) d.classList.remove('show');
-            });
-            document.getElementById(`dropdown-${userId}`).classList.toggle('show');
-        }
 
-        // Close dropdowns on click outside
-        window.onclick = function() {
-            const allDropdowns = document.querySelectorAll('.dropdown-content');
-            allDropdowns.forEach(d => d.classList.remove('show'));
-        };
 
         // Search Logic
         document.getElementById('userSearch').addEventListener('input', (e) => {
@@ -213,6 +279,229 @@
 
         // Initial Render
         renderUsers();
+
+        // --- API & Interaction Logic ---
+
+        // CSRF Token Helper
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
+
+        // Add User
+        document.querySelector('#addUserModal .btn-primary').addEventListener('click', async () => {
+            const username = document.getElementById('addUsername').value;
+            const email = document.getElementById('addEmail').value;
+            const password = document.getElementById('addPassword').value;
+            const role = document.getElementById('addRole').value;
+            
+            // Basic validation
+            if(!username || !email || !password) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Missing Fields',
+                    text: 'Please fill in all fields',
+                    confirmButtonColor: '#3085d6'
+                });
+                return;
+            }
+
+            try {
+                const response = await fetch("{% url 'admin_add_user' %}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken
+                    },
+                    body: JSON.stringify({ username, email, password, role })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'User Added',
+                        text: 'The new user has been created successfully.',
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => location.reload());
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message,
+                        confirmButtonColor: '#d33'
+                    });
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'System Error',
+                    text: 'An unexpected error occurred.',
+                    confirmButtonColor: '#d33'
+                });
+            }
+        });
+
+        // Toggle Admin
+        async function toggleAdmin(userId) {
+            Swal.fire({
+                title: 'Change Role?',
+                text: "Are you sure you want to change this user's role?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, change it!'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        const response = await fetch(`/admin-panel/users/${userId}/toggle-admin/`, {
+                            method: 'POST',
+                            headers: { 'X-CSRFToken': csrftoken }
+                        });
+                        const data = await response.json();
+                        if(data.success) {
+                             Swal.fire({
+                                icon: 'success',
+                                title: 'Updated!',
+                                text: 'User role has been updated.',
+                                showConfirmButton: false,
+                                timer: 1500
+                            }).then(() => location.reload());
+                        } else {
+                            Swal.fire('Error', data.message, 'error');
+                        }
+                    } catch (e) { 
+                        console.error(e); 
+                        Swal.fire('Error', 'Failed to update role', 'error');
+                    }
+                }
+            });
+        }
+
+        // Delete User
+        async function deleteUser(userId) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        const response = await fetch(`/admin-panel/users/${userId}/delete/`, {
+                            method: 'POST',
+                            headers: { 'X-CSRFToken': csrftoken }
+                        });
+                        const data = await response.json();
+                        if(data.success) {
+                            Swal.fire(
+                                'Deleted!',
+                                'User has been deleted.',
+                                'success'
+                            ).then(() => location.reload());
+                        } else {
+                            Swal.fire('Error', data.message, 'error');
+                        }
+                    } catch (e) { 
+                        console.error(e); 
+                        Swal.fire('Error', 'Failed to delete user', 'error');
+                    }
+                }
+            });
+        }
+
+        // View User
+        async function viewUser(userId) {
+            try {
+                const response = await fetch(`/admin-panel/users/${userId}/get/`);
+                const data = await response.json();
+                if(data.success) {
+                    document.getElementById('viewUsername').textContent = data.user.username;
+                    document.getElementById('viewEmail').textContent = data.user.email;
+                    document.getElementById('viewRole').textContent = data.user.role;
+                    document.getElementById('viewJoined').textContent = data.user.date_joined;
+                    
+                    const modal = new bootstrap.Modal(document.getElementById('viewUserModal'));
+                    modal.show();
+                } else {
+                    Swal.fire('Error', 'Error loading user data', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire('Error', 'System error loading data', 'error');
+            }
+        }
+
+        // Edit User
+        async function editUser(userId) {
+            try {
+                const response = await fetch(`/admin-panel/users/${userId}/get/`);
+                const data = await response.json();
+                if(data.success) {
+                    document.getElementById('editUserId').value = data.user.id;
+                    document.getElementById('editUsername').value = data.user.username;
+                    document.getElementById('editEmail').value = data.user.email;
+                    
+                    const modal = new bootstrap.Modal(document.getElementById('editUserModal'));
+                    modal.show();
+                } else {
+                    Swal.fire('Error', 'Error loading user data', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire('Error', 'System error loading data', 'error');
+            }
+        }
+
+        // Save Edit User
+        document.getElementById('saveEditUserBtn').addEventListener('click', async () => {
+            const userId = document.getElementById('editUserId').value;
+            const username = document.getElementById('editUsername').value;
+            const email = document.getElementById('editEmail').value;
+            
+            try {
+                 const response = await fetch(`/admin-panel/users/${userId}/edit/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken
+                    },
+                    body: JSON.stringify({ username, email })
+                });
+                const data = await response.json();
+                if(data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Saved',
+                        text: 'User details updated successfully!',
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => location.reload());
+                } else {
+                    Swal.fire('Error', data.message, 'error');
+                }
+            } catch (e) { 
+                console.error(e); 
+                Swal.fire('Error', 'Failed to update user', 'error');
+            }
+        });
     </script>
     <!-- Sidebar Logic -->
     <!-- Sidebar Logic handled in Sidebar.html -->

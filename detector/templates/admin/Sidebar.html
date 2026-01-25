@@ -7,13 +7,13 @@
 
         <!-- Header -->
         <div class="sidebar-header">
-            <a href="{% url 'admin_dashboard' %}" class="text-decoration-none d-flex align-items-center gap-3">
+            <a href="{% url 'admin_dashboard' %}" class="brand-link">
                 <div class="logo-box">
                     <i class="bi bi-shield-check"></i>
                 </div>
                 <div class="brand-text">
-                    <div class="fw-bold fs-6 text-dark">TruthGuard</div>
-                    <div class="text-muted" style="font-size: 0.75rem;">Admin Panel</div>
+                    <div class="brand-title">TruthGuard</div>
+                    <div class="brand-subtitle">Admin Panel</div>
                 </div>
             </a>
         </div>
@@ -52,17 +52,17 @@
                 <div class="avatar-circle">
                     <span id="userInitial">{{ request.user.username.0|upper }}</span>
                 </div>
-                <div class="user-info d-flex flex-column" style="min-width: 0;">
-                    <span class="fw-medium text-dark text-truncate" id="userName">{{ request.user.username }}</span>
-                    <span class="text-muted text-truncate" id="userEmail">{{ request.user.email }}</span>
+                <div class="user-info">
+                    <span class="user-name" id="userName">{{ request.user.username }}</span>
+                    <span class="user-email" id="userEmail">{{ request.user.email }}</span>
                 </div>
             </div>
             
-            <form action="{% url 'logout' %}" method="post" class="w-100">
+            <form action="{% url 'logout' %}" method="post" class="logout-form">
                 {% csrf_token %}
-                <button type="submit" class="logout-btn text-decoration-none w-100 border-0 bg-transparent text-start d-flex align-items-center" style="padding: 0;">
-                    <i class="bi bi-box-arrow-right" style="width: 1.25rem; text-align: center;"></i>
-                    <span class="logout-text ms-2" style="font-size: 0.875rem;">Logout</span>
+                <button type="submit" class="logout-btn">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span class="logout-text">Logout</span>
                 </button>
             </form>
         </div>

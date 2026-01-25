@@ -40,4 +40,5 @@ class Feedback(models.Model):
     corrected_label = models.CharField(max_length=10)  # 'Real' or 'Fake'
     feedback_note = models.TextField(null=True, blank=True)
     approved = models.BooleanField(default=False)  # Admin approval for retraining
+    rejected = models.BooleanField(default=False)  # Admin rejection
     created_at = models.DateTimeField(auto_now_add=True)
