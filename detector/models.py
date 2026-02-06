@@ -10,6 +10,9 @@ class Prediction(models.Model):
     approved = models.BooleanField(default=False)  # For retraining eligibility
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        db_table = 'predictions'
+
     def __str__(self):
         return f"{self.prediction} - {self.created_at}"
 
@@ -32,6 +35,7 @@ class Vote(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
+        db_table = 'votes'
         unique_together = ('prediction', 'user')  # Prevent duplicate votes per user
 
 class Feedback(models.Model):
@@ -42,3 +46,41 @@ class Feedback(models.Model):
     approved = models.BooleanField(default=False)  # Admin approval for retraining
     rejected = models.BooleanField(default=False)  # Admin rejection
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'correction_feedbacks'
+
+class DashboardStats(models.Model):
+    total_predictions = models.IntegerField(default=0)
+    active_users = models.IntegerField(default=0)
+    pending_feedback = models.IntegerField(default=0)
+    accuracy_rate = models.FloatField(default=100.0)
+    real_count = models.IntegerField(default=0)
+    fake_count = models.IntegerField(default=0)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'dashboard_metrics'
+
+    def __str__(self):
+        return f"Stats updated at {self.updated_at}"
+
+class ActivityLog(models.Model):
+    ACTION_CHOICES = (
+        ('prediction_created', 'Prediction Created'),
+        ('feedback_submitted', 'Feedback Submitted'),
+        ('vote_up', 'Upvoted'),
+        ('vote_down', 'Downvoted'),
+        ('user_login', 'User Joined'), # Keeping 'user_login' string for compat with frontend filter
+    )
+    
+    actor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    action_type = models.CharField(max_length=50, choices=ACTION_CHOICES)
+    details = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'activity_logs'
+
+    def __str__(self):
+        return f"{self.actor} - {self.action_type} - {self.created_at}"

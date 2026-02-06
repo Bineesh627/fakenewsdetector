@@ -109,7 +109,36 @@
                         </tr>
                     </thead>
                     <tbody id="predictions-body" class="divide-y divide-gray-200">
-                        <!-- Table rows injected by JS -->
+                        {% for p in recent_preds %}
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4">
+                                <p class="text-sm text-gray-900 line-clamp-1 max-w-xs">{{ p.text }}</p>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border 
+                                    {% if p.prediction == 'Real' %}bg-green-50 text-green-700 border-green-100{% else %}bg-red-50 text-red-700 border-red-100{% endif %}">
+                                    {{ p.prediction }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-500 font-medium">
+                                {{ p.confidence|floatformat:2 }}
+                            </td>
+                            <td class="px-6 py-4 text-sm">
+                                <span class="text-success font-semibold">↑{{ p.votes_up }}</span>
+                                <span class="text-gray-300 mx-1">/</span>
+                                <span class="text-destructive font-semibold">↓{{ p.votes_down }}</span>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-500">
+                                {{ p.created_at|date:"Y-m-d" }}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="px-6 py-4 text-sm text-gray-500 text-center">
+                                No predictions yet.
+                            </td>
+                        </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
@@ -118,7 +147,7 @@
 
     <script>
         // Data from Backend
-        const predictionsData = JSON.parse('{{ predictions_json|escapejs }}');
+        // predictionsData removed as we use SSR now
         const activityData = JSON.parse('{{ activity_json|escapejs }}');
         const statsInfo = JSON.parse('{{ stats_json|escapejs }}');
         const realCount = Number("{{ real_count|default:0 }}");
@@ -129,7 +158,7 @@
             renderStats();
             renderDistribution();
             renderActivity();
-            renderPredictions();
+            // renderPredictions(); // Removed
             lucide.createIcons();
         };
 
@@ -202,37 +231,6 @@
                         <p class="text-xs text-gray-400 mt-0.5">${new Date(log.createdAt).toLocaleString()}</p>
                     </div>
                 </div>
-            `).join('');
-        }
-
-        function renderPredictions() {
-            const body = document.getElementById('predictions-body');
-            body.innerHTML = predictionsData.map(pred => `
-                <tr class="hover:bg-gray-50 transition-colors">
-                    <td class="px-6 py-4">
-                        <p class="text-sm text-gray-900 line-clamp-1 max-w-xs">${pred.text}</p>
-                    </td>
-                    <td class="px-6 py-4">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
-                            pred.prediction === 'Real' 
-                            ? 'bg-green-50 text-green-700 border-green-100' 
-                            : 'bg-red-50 text-red-700 border-red-100'
-                        }">
-                            ${pred.prediction}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 text-sm text-gray-500 font-medium">
-                        ${Math.round(pred.confidence * 100)}%
-                    </td>
-                    <td class="px-6 py-4 text-sm">
-                        <span class="text-success font-semibold">↑${pred.votesUp}</span>
-                        <span class="text-gray-300 mx-1">/</span>
-                        <span class="text-destructive font-semibold">↓${pred.votesDown}</span>
-                    </td>
-                    <td class="px-6 py-4 text-sm text-gray-500">
-                        ${new Date(pred.createdAt).toLocaleDateString()}
-                    </td>
-                </tr>
             `).join('');
         }
     </script>
