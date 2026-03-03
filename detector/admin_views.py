@@ -206,20 +206,23 @@ def admin_add_user(request):
         username = data.get('username')
         email = data.get('email')
         password = data.get('password')
-        role = data.get('role', 'user')
-
+        
+        # Always create as admin - role is no longer needed from frontend
         if not all([username, email, password]):
             return JsonResponse({'success': False, 'message': 'Missing fields'}, status=400)
 
         if User.objects.filter(username=username).exists():
             return JsonResponse({'success': False, 'message': 'Username already exists'}, status=400)
 
-        user = User.objects.create_user(username=username, email=email, password=password)
-        if role == 'admin':
-            user.is_staff = True
-            user.save()
+        if User.objects.filter(email=email).exists():
+            return JsonResponse({'success': False, 'message': 'Email already exists'}, status=400)
 
-        return JsonResponse({'success': True, 'message': 'User created successfully'})
+        # Create user and always set as admin
+        user = User.objects.create_user(username=username, email=email, password=password)
+        user.is_staff = True
+        user.save()
+
+        return JsonResponse({'success': True, 'message': 'Admin created successfully'})
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)}, status=500)
 

@@ -49,7 +49,7 @@
             </div>
             <button class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm" data-bs-toggle="modal" data-bs-target="#addUserModal">
                 <i data-lucide="user-plus" class="h-4 w-4 mr-2"></i>
-                Add User
+                Add Admin
             </button>
         </div>
 
@@ -119,7 +119,7 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Add New User</h5>
+                        <h5 class="modal-title">Add New Admin</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
@@ -138,16 +138,14 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Role</label>
-                                <select class="form-select" id="addRole">
-                                    <option value="user">User</option>
-                                    <option value="admin">Admin</option>
-                                </select>
+                                <input type="text" class="form-control" value="Admin" readonly>
+                                <div class="form-text">This user will be created as an administrator</div>
                             </div>
                         </form>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Save User</button>
+                        <button type="button" class="btn btn-primary">Create Admin</button>
                     </div>
                 </div>
             </div>
@@ -304,7 +302,7 @@
             const username = document.getElementById('addUsername').value;
             const email = document.getElementById('addEmail').value;
             const password = document.getElementById('addPassword').value;
-            const role = document.getElementById('addRole').value;
+            const role = 'admin'; // Always create as admin
             
             // Basic validation
             if(!username || !email || !password) {
@@ -331,8 +329,8 @@
                 if (data.success) {
                     Swal.fire({
                         icon: 'success',
-                        title: 'User Added',
-                        text: 'The new user has been created successfully.',
+                        title: 'Admin Added',
+                        text: 'The new admin has been created successfully.',
                         showConfirmButton: false,
                         timer: 1500
                     }).then(() => location.reload());

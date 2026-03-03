@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path
-from detector.views import home, signup, login_view, feedback_view, vote, predictions_list, prediction_detail
+from detector.views import home, signup, login_view, feedback_view, vote, predictions_list, prediction_detail, profile_view, password_change_view
 from detector import admin_views
 from django.contrib.auth.views import LogoutView
 
@@ -14,6 +14,8 @@ urlpatterns = [
     path('predictions/', predictions_list, name='predictions_list'),
     path('predictions/', predictions_list, name='predictions_list'),
     path('prediction/<int:pred_id>/', prediction_detail, name='prediction_detail'),
+    path('profile/', profile_view, name='profile'),
+    path('change-password/', password_change_view, name='password_change'),
 
     # Admin Panel URLs
     path('admin-panel/dashboard/', admin_views.admin_dashboard, name='admin_dashboard'),

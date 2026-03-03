@@ -1,5 +1,4 @@
 from django.shortcuts import render, redirect
-from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.contrib.auth import login, authenticate
@@ -8,6 +7,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.http import HttpResponse
 from django.db import models
 from django.db.models import Count, Q, F
+from django.contrib import messages
 import tensorflow as tf
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
@@ -278,3 +278,71 @@ def prediction_detail(request, pred_id):
     predictions_json = json.dumps(prediction_data, cls=DjangoJSONEncoder)
     
     return render(request, 'users/PredictionDetails.html', {'predictions_json': predictions_json})
+
+@login_required(login_url='login')
+def profile_view(request):
+    if request.user.is_staff:
+        return redirect('admin_dashboard')
+    
+    if request.method == 'POST':
+        # Handle profile update
+        email = request.POST.get('email')
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        
+        # Validate email
+        if not email:
+            messages.error(request, 'Email is required')
+        elif User.objects.filter(email=email).exclude(id=request.user.id).exists():
+            messages.error(request, 'Email is already in use by another account')
+        else:
+            # Update user profile
+            request.user.email = email
+            request.user.first_name = first_name
+            request.user.last_name = last_name
+            request.user.save()
+            messages.success(request, 'Profile updated successfully!')
+    
+    # Get user statistics
+    total_predictions = Prediction.objects.filter(user=request.user).count()
+    total_votes = Vote.objects.filter(user=request.user).count()
+    member_since = request.user.date_joined.strftime('%b %Y')
+    
+    context = {
+        'total_predictions': total_predictions,
+        'total_votes': total_votes,
+        'member_since': member_since
+    }
+    
+    return render(request, 'users/profile.html', context)
+
+@login_required(login_url='login')
+def password_change_view(request):
+    if request.user.is_staff:
+        return redirect('admin_dashboard')
+    
+    if request.method == 'POST':
+        old_password = request.POST.get('old_password')
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+        
+        # Validate passwords
+        if not old_password or not new_password or not confirm_password:
+            messages.error(request, 'All password fields are required')
+        elif not request.user.check_password(old_password):
+            messages.error(request, 'Current password is incorrect')
+        elif new_password != confirm_password:
+            messages.error(request, 'New passwords do not match')
+        elif len(new_password) < 8:
+            messages.error(request, 'Password must be at least 8 characters long')
+        else:
+            # Change password
+            request.user.set_password(new_password)
+            request.user.save()
+            # Re-authenticate the user with new password
+            from django.contrib.auth import update_session_auth_hash
+            update_session_auth_hash(request, request.user)
+            messages.success(request, 'Password changed successfully!')
+            return redirect('profile')
+    
+    return render(request, 'users/password_change.html')
