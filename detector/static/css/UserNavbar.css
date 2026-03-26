@@ -1,13 +1,13 @@
 /* --- CSS Variables (Matching Project Theme) --- */
 :root {
-    --background: #ffffff;
-    --foreground: #0f172a;
-    --primary: #0f172a;
+    --background: #0f172a;
+    --foreground: #f8fafc;
+    --primary: #3b82f6;
     --primary-fg: #ffffff;
-    --muted: #f1f5f9;
-    --muted-foreground: #64748b;
-    --border: #e2e8f0;
-    --card-bg-opacity: rgba(255, 255, 255, 0.95);
+    --muted: rgba(30, 41, 59, 0.5);
+    --muted-foreground: #94a3b8;
+    --border: rgba(59, 130, 246, 0.3);
+    --card-bg-opacity: rgba(15, 23, 42, 0.8);
 }
 
 body {
@@ -81,7 +81,8 @@ body {
 }
 
 .nav-link-custom.active {
-    color: var(--primary);
+    color: #60a5fa; /* Tailwind blue-400 */
+    text-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
 }
 
 /* Buttons (Mimicking shadcn/ui variants) */
@@ -159,7 +160,8 @@ body {
 }
 
 .mobile-nav-link.active {
-    color: var(--primary);
+    color: #60a5fa;
+    text-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
 }
 
 @keyframes fadeIn {

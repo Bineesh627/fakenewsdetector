@@ -30,18 +30,19 @@
       /* Fix gap between navbar and hero */
       body {
         padding-top: 4rem !important;
+        background-color: transparent !important;
       }
 
       /* Hero Specific Styles */
       .hero-section {
-        background-color: #0f172a; /* Slate 900 - Dark Background */
         color: white;
       }
       
       .hero-badge {
-        background-color: rgba(30, 41, 59, 0.8); /* Slate 800 with opacity */
-        border: 1px solid rgba(51, 65, 85, 0.5);
-        color: #e2e8f0;
+        background-color: rgba(30, 41, 59, 0.6);
+        border: 1px solid rgba(59, 130, 246, 0.4);
+        color: #93c5fd;
+        box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
       }
 
       .hero-gradient {
@@ -72,19 +73,17 @@
       }
     </style>
   </head>
-  <body class="bg-slate-50 text-slate-900 font-sans">
-    <!-- Navigation -->
-    <!-- Navbar Component -->
+  <body class="text-slate-200 bg-transparent min-h-screen relative flex flex-col font-sans">
+    <!-- Futuristic Animated Background (Vanta.js Net) -->
+    <div id="vanta-bg" class="fixed inset-0" style="z-index: -20;"></div>
+    <div class="fixed inset-0 bg-slate-900/60 pointer-events-none" style="z-index: -10;"></div>
+
     <!-- Navigation -->
     {% include 'users/UserNavbar.html' %}
 
     <!-- Hero Section -->
-    <section class="hero-section py-20 lg:py-28 relative overflow-hidden">
-      <!-- Background Glow Effect -->
-      <div class="absolute inset-0 overflow-hidden pointer-events-none">
-         <div class="absolute -top-[50%] -left-[20%] w-[70%] h-[70%] rounded-full bg-blue-600/10 blur-[100px]"></div>
-         <div class="absolute top-[20%] -right-[20%] w-[60%] h-[60%] rounded-full bg-indigo-600/10 blur-[100px]"></div>
-      </div>
+    <section class="hero-section py-20 lg:py-28 relative overflow-hidden flex-grow">
+      <!-- Background Glow Effect (removed static blobs for Vanta) -->
 
       <div class="container mx-auto px-4 relative z-10 text-center">
         <div
@@ -110,7 +109,7 @@
         >
           <!-- Dynamic Hero Buttons -->
           {% if user.is_authenticated %}
-            <button onclick="document.getElementById('formSection').scrollIntoView({behavior:'smooth'})" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold shadow-lg shadow-blue-500/20 transition-all border-0">Submit New Article</button>
+            <a href="{% url 'check_news' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold shadow-lg shadow-blue-500/20 transition-all text-decoration-none inline-block">Verify New Article</a>
           {% else %}
             <a href="{% url 'signup' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold shadow-lg shadow-blue-500/20 transition-all hover:scale-105 text-decoration-none">Get Started Free</a>
             <a href="{% url 'login' %}" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors text-decoration-none">Sign In</a>
@@ -120,97 +119,58 @@
     </section>
 
     <!-- Stats Bar -->
-    <section class="bg-white border-b border-slate-200 py-8">
+    <section class="border-y border-slate-700/50 py-8 bg-slate-800/40 backdrop-blur-md">
       <div class="container mx-auto px-4">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
           <div class="text-center">
             <i
               data-lucide="shield"
-              class="h-6 w-6 mx-auto text-indigo-600 mb-2"
+              class="h-6 w-6 mx-auto text-blue-400 mb-2"
             ></i>
-            <p class="text-2xl font-bold">50K+</p>
-            <p class="text-sm text-slate-500">Articles Analyzed</p>
+            <p class="text-2xl font-bold text-white drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]">50K+</p>
+            <p class="text-sm text-slate-400 font-mono uppercase tracking-wider">Nodes Analyzed</p>
           </div>
           <div class="text-center">
             <i
               data-lucide="check-circle"
-              class="h-6 w-6 mx-auto text-indigo-600 mb-2"
+              class="h-6 w-6 mx-auto text-blue-400 mb-2"
             ></i>
-            <p class="text-2xl font-bold">94%</p>
-            <p class="text-sm text-slate-500">Accuracy Rate</p>
+            <p class="text-2xl font-bold text-white drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]">98%</p>
+            <p class="text-sm text-slate-400 font-mono uppercase tracking-wider">Neural Accuracy</p>
           </div>
           <div class="text-center">
             <i
               data-lucide="users"
-              class="h-6 w-6 mx-auto text-indigo-600 mb-2"
+              class="h-6 w-6 mx-auto text-blue-400 mb-2"
             ></i>
-            <p class="text-2xl font-bold">10K+</p>
-            <p class="text-sm text-slate-500">Active Users</p>
+            <p class="text-2xl font-bold text-white drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]">10K+</p>
+            <p class="text-sm text-slate-400 font-mono uppercase tracking-wider">Active Agents</p>
           </div>
           <div class="text-center">
             <i
               data-lucide="trending-up"
-              class="h-6 w-6 mx-auto text-indigo-600 mb-2"
+              class="h-6 w-6 mx-auto text-blue-400 mb-2"
             ></i>
-            <p class="text-2xl font-bold">1M+</p>
-            <p class="text-sm text-slate-500">Votes Cast</p>
+            <p class="text-2xl font-bold text-white drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]">1M+</p>
+            <p class="text-sm text-slate-400 font-mono uppercase tracking-wider">Verifications</p>
           </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Form Section -->
-    <!-- Form Section -->
-    <section id="formSection" class="py-12 lg:py-16">
-      <div class="container mx-auto px-4">
-        <div id="formContainer" class="max-w-2xl mx-auto">
-          {% if user.is_authenticated %}
-            <div class="bg-white rounded-2xl border border-slate-200 p-8 shadow-lg">
-                <h2 class="text-2xl font-bold mb-2">Check News Authenticity</h2>
-                <p class="text-slate-500 mb-6">Submit a news article link or paste the text to verify.</p>
-                <form id="newsForm" class="space-y-6" method="POST" action="{% url 'home' %}">
-                    {% csrf_token %}
-                    <div class="space-y-2">
-                        <label class="flex items-center gap-2 text-sm font-medium"><i data-lucide="link-2" class="h-4 w-4 text-indigo-600"></i>News Link</label>
-                        <input type="url" id="newsLink" name="news_link" placeholder="https://..." class="w-full h-12 px-4 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none">
-                    </div>
-                    <div class="relative flex items-center justify-center"><div class="absolute inset-0 flex items-center"><div class="w-full border-t"></div></div><span class="relative bg-white px-2 text-xs text-slate-400">OR</span></div>
-                    <div class="space-y-2">
-                        <label class="flex items-center gap-2 text-sm font-medium"><i data-lucide="file-text" class="h-4 w-4 text-indigo-600"></i>Paste Raw Text</label>
-                        <textarea id="newsText" name="news_text" rows="4" placeholder="Paste content here..." class="w-full p-4 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none resize-none"></textarea>
-                    </div>
-                    <button type="submit" id="submitBtn" class="w-full bg-indigo-600 text-white h-12 rounded-lg font-bold flex items-center justify-center gap-2 hover:bg-indigo-700 disabled:opacity-50">
-                        <i data-lucide="sparkles" class="h-5 w-5"></i> Analyze News
-                    </button>
-                </form>
-            </div>
-          {% else %}
-            <div class="text-center py-12 bg-slate-200/50 rounded-2xl border border-dashed border-slate-300">
-                <h2 class="text-2xl font-bold mb-4">Ready to Fight Misinformation?</h2>
-                <p class="text-slate-500 mb-6">Create a free account to start analyzing news articles.</p>
-                <div class="flex items-center justify-center gap-4">
-                    <a href="{% url 'signup' %}" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium text-decoration-none">Create Account</a>
-                    <a href="{% url 'login' %}" class="border border-slate-300 px-6 py-2 rounded-lg font-medium bg-white text-decoration-none text-dark">Sign In</a>
-                </div>
-            </div>
-          {% endif %}
         </div>
       </div>
     </section>
 
     <!-- Popular Submissions -->
-    <section class="py-12 lg:py-16 bg-slate-100/50">
+    <section class="py-12 lg:py-16 bg-transparent">
       <div class="container mx-auto px-4">
         <div class="flex items-center justify-between mb-8">
           <div>
-            <h2 class="text-2xl font-bold">Popular Submissions</h2>
-            <p class="text-slate-500">Most voted articles this week</p>
+            <h2 class="text-2xl font-bold text-white drop-shadow-[0_0_10px_rgba(59,130,246,0.3)]">Global Ledger Highlights</h2>
+            <p class="text-slate-400 font-mono text-sm uppercase tracking-wider">Most active verification nodes</p>
           </div>
-          <button
-            class="px-4 py-2 border border-slate-300 rounded-lg hover:bg-white transition-colors"
+          <a href="{% url 'predictions_list' %}"
+            class="px-4 py-2 border border-blue-500/30 rounded-lg text-blue-400 hover:bg-blue-600/20 hover:text-white transition-colors font-mono text-sm uppercase tracking-wider text-decoration-none"
           >
-            View All
-          </button>
+            Access Full Ledger
+          </a>
         </div>
 
         <div
@@ -218,37 +178,37 @@
           class="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
           {% for p in popular %}
-          <article class="bg-white rounded-xl border border-slate-200 p-5 hover:shadow-lg transition-all animate-fade-in">
+          <article class="bg-slate-800/40 backdrop-blur-md rounded-xl border border-blue-500/20 p-5 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:border-blue-400/50 transition-all animate-fade-in group flex flex-col h-full">
               <div class="flex items-center justify-between mb-3">
-                  <span class="px-2.5 py-0.5 rounded-full text-xs font-bold 
-                      {% if p.prediction == 'Real' %}bg-green-50 text-green-600{% else %}bg-red-50 text-red-600{% endif %}">
-                      {{ p.prediction }}
+                  <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider border
+                      {% if p.prediction == 'Real' %}bg-green-900/30 text-green-400 border-green-500/50{% else %}bg-red-900/30 text-red-400 border-red-500/50{% endif %}">
+                      [ {{ p.prediction }} ]
                   </span>
-                  <span class="text-xs text-slate-400">
-                    {{ p.confidence|floatformat:2 }}% confidence
+                  <span class="text-[10px] font-mono text-blue-400 opacity-80 uppercase tracking-wider">
+                    {{ p.confidence|floatformat:2 }}% Certitude
                   </span>
               </div>
-              <p class="text-slate-900 font-medium line-clamp-3 mb-4 cursor-pointer hover:text-indigo-600 transition-colors">
-                  <a href="{% url 'prediction_detail' p.id %}" class="text-decoration-none text-reset">{{ p.text }}</a>
-              </p>
-              <div class="flex items-center justify-between pt-4 border-t border-slate-100">
-                  <div class="flex items-center gap-1 text-xs text-slate-400">
-                      <i data-lucide="clock" class="h-3 w-3"></i>
-                      {{ p.created_at|date:"M d, Y" }}
+              <a href="{% url 'prediction_detail' p.id %}" class="text-slate-200 text-sm font-medium line-clamp-3 mb-4 flex-grow hover:text-blue-400 transition-colors text-decoration-none focus:outline-none">
+                  {{ p.text }}
+              </a>
+              <div class="flex items-center justify-between pt-4 border-t border-slate-700/50 mt-auto">
+                  <div class="flex items-center gap-1 text-[10px] uppercase font-mono tracking-wider text-slate-500">
+                      <i data-lucide="terminal" class="h-3 w-3"></i>
+                      LOG: {{ p.created_at|date:"M d, Y" }}
                   </div>
                   <div class="flex gap-2">
-                      <a href="{% url 'vote' p.id 'UP' %}" class="flex items-center gap-1 px-3 py-1 bg-slate-50 border border-slate-200 rounded-md text-green-600 text-sm hover:border-green-200 text-decoration-none">
-                          <i data-lucide="thumbs-up" class="h-3 w-3"></i> {{ p.up_votes }}
+                      <a href="{% url 'vote' p.id 'UP' %}" class="flex items-center gap-1 px-3 py-1 bg-slate-800/80 border border-slate-700 rounded-md text-slate-400 hover:text-green-400 hover:border-green-500/50 text-xs font-mono transition-colors text-decoration-none">
+                          <i data-lucide="chevron-up" class="h-3 w-3"></i> {{ p.up_votes }}
                       </a>
-                      <a href="{% url 'vote' p.id 'DOWN' %}" class="flex items-center gap-1 px-3 py-1 bg-slate-50 border border-slate-200 rounded-md text-red-600 text-sm hover:border-red-200 text-decoration-none">
-                          <i data-lucide="thumbs-down" class="h-3 w-3"></i> {{ p.down_votes }}
+                      <a href="{% url 'vote' p.id 'DOWN' %}" class="flex items-center gap-1 px-3 py-1 bg-slate-800/80 border border-slate-700 rounded-md text-slate-400 hover:text-red-400 hover:border-red-500/50 text-xs font-mono transition-colors text-decoration-none">
+                          <i data-lucide="chevron-down" class="h-3 w-3"></i> {{ p.down_votes }}
                       </a>
                   </div>
               </div>
           </article>
           {% empty %}
-          <div class="col-span-full text-center py-10 text-muted">
-              <p>No predictions yet. Be the first to submit!</p>
+          <div class="col-span-full text-center py-10 text-slate-500 font-mono">
+              <p>No nodes indexed in the ledger yet.</p>
           </div>
           {% endfor %}
         </div>
@@ -258,29 +218,31 @@
     <script>
       // Initialize Icons
       lucide.createIcons();
-
-      // Simple Form Loading State
-      const newsForm = document.getElementById('newsForm');
-      if(newsForm) {
-          newsForm.addEventListener('submit', function(e) {
-              const btn = document.getElementById("submitBtn");
-              const link = document.getElementById("newsLink").value;
-              const text = document.getElementById("newsText").value;
-    
-              if (!link && !text) {
-                  e.preventDefault();
-                  alert("Please provide a link or text to analyze.");
-                  return;
-              }
-              // Allow default submit causing page reload, but show loading
-              btn.disabled = true;
-              btn.innerHTML = `<i data-lucide="loader-2" class="h-5 w-5 animate-spin"></i> Analyzing...`;
-              lucide.createIcons();
-          });
-      }
     </script>
+    
+    <!-- Vanta.js Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>
+    <script>
+        VANTA.NET({
+            el: "#vanta-bg",
+            mouseControls: true,
+            touchControls: true,
+            gyroControls: false,
+            minHeight: 200.00,
+            minWidth: 200.00,
+            scale: 1.00,
+            scaleMobile: 1.00,
+            color: 0x3b82f6,
+            backgroundColor: 0x0f172a,
+            points: 12.00,
+            maxDistance: 22.00,
+            spacing: 18.00,
+            showDots: true
+        });
+    </script>
+
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
   </body>
 </html>

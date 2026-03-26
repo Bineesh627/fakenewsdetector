@@ -11,8 +11,6 @@ from django.contrib import messages
 import tensorflow as tf
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
-import requests
-from bs4 import BeautifulSoup
 from .models import Prediction, Vote, Feedback
 import joblib
 
@@ -35,66 +33,12 @@ def predict_fake_news(text):
     confidence = pred if pred > 0.5 else (1 - pred)
     return result, confidence
 
-def scrape_text_from_url(url):
-    try:
-        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
-        response = requests.get(url, headers=headers, timeout=10)
-        soup = BeautifulSoup(response.text, 'html.parser')
-
-        body = soup.find('body')
-        if body:
-            # Remove unwanted tags
-            for tag in body(["script", "style", "header", "footer", "nav", "aside", "form", "iframe", "ads", "advertisement"]):
-                tag.decompose()
-
-            # Capture specific content block tags.
-            # We exclude 'div' to avoid capturing menus/sidebars/footers which often are just divs with links.
-            # Valid inline tags like strong, mark, em etc. will be captured if they are inside these blocks.
-            content_tags = body.find_all(['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'blockquote', 'article', 'section'])
-            text = ' '.join([tag.get_text(separator=' ', strip=True) for tag in content_tags if tag.get_text(strip=True)])
-            # Clean up extra spaces
-            text = ' '.join(text.split())
-            return text[:5000]
-            
-        return None
-    except Exception:
-        return None
-
 def home(request):
-    if request.user.is_authenticated and request.user.is_staff:
-        return redirect('admin_dashboard')
-    if request.method == 'POST':
-        link_url = request.POST.get('news_link')
-        input_text = request.POST.get('news_text')
-        text = input_text or scrape_text_from_url(link_url)
-        if text:
-            result, confidence = predict_fake_news(text)
-            pred = Prediction.objects.create(
-                user=request.user,
-                link_url=link_url,
-                text=text,
-                prediction=result,
-                confidence=confidence
-            )
-            # Serialize for result page
-            prediction_data = [{
-                'id': str(pred.id),
-                'text': pred.text,
-                'linkUrl': pred.link_url if pred.link_url else '',
-                'prediction': pred.prediction,
-                'confidence': float(pred.confidence),
-                'votesUp': 0,
-                'votesDown': 0,
-                'userId': str(pred.user.id) if pred.user else '',
-                'userName': pred.user.username if pred.user else 'Anonymous',
-                'createdAt': pred.created_at.isoformat(), 
-                'isCorrection': False 
-            }]
-            predictions_json = json.dumps(prediction_data, cls=DjangoJSONEncoder)
-
-            return render(request, 'users/Results.html', {'predictions_json': predictions_json})
-        else:
-            return HttpResponse("Invalid link or text.")
+    if request.user.is_authenticated:
+        if request.user.is_staff:
+            return redirect('admin_dashboard')
+        return redirect('check_news')
+    
     
     # Popular: Order by net votes (up - down)
     popular = Prediction.objects.annotate(
@@ -129,6 +73,41 @@ def signup(request):
             return render(request, 'auth/signup.html', {'error': 'Error creating account'})
             
     return render(request, 'auth/signup.html')
+
+@login_required(login_url='login')
+def check_news(request):
+    if request.user.is_staff:
+        return redirect('admin_dashboard')
+    if request.method == 'POST':
+        text = request.POST.get('news_text')
+        if text:
+            result, confidence = predict_fake_news(text)
+            pred = Prediction.objects.create(
+                user=request.user,
+                text=text,
+                prediction=result,
+                confidence=confidence
+            )
+            # Serialize for result page
+            prediction_data = [{
+                'id': str(pred.id),
+                'text': pred.text,
+                'prediction': pred.prediction,
+                'confidence': float(pred.confidence),
+                'votesUp': 0,
+                'votesDown': 0,
+                'userId': str(pred.user.id) if pred.user else '',
+                'userName': pred.user.username if pred.user else 'Anonymous',
+                'createdAt': pred.created_at.isoformat(), 
+                'isCorrection': False 
+            }]
+            predictions_json = json.dumps(prediction_data, cls=DjangoJSONEncoder)
+
+            return render(request, 'users/Results.html', {'predictions_json': predictions_json})
+        else:
+            return render(request, 'users/CheckNews.html', {'error': 'Please provide text to analyze.'})
+    
+    return render(request, 'users/CheckNews.html')
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -188,7 +167,6 @@ def feedback_view(request, pred_id):
     prediction_data = [{
         'id': str(pred.id),
         'text': pred.text,
-        'linkUrl': pred.link_url if pred.link_url else '',
         'prediction': pred.prediction,
         'confidence': float(pred.confidence),
         'votesUp': pred.up_votes,
@@ -234,7 +212,6 @@ def predictions_list(request):
         predictions_data.append({
             'id': str(p.id),
             'text': p.text,
-            'linkUrl': p.link_url if p.link_url else '',
             'prediction': p.prediction,
             'confidence': float(p.confidence),
             'votesUp': p.up_votes,
@@ -264,7 +241,6 @@ def prediction_detail(request, pred_id):
     prediction_data = [{
         'id': str(p.id),
         'text': p.text,
-        'linkUrl': p.link_url if p.link_url else '',
         'prediction': p.prediction,
         'confidence': float(p.confidence),
         'votesUp': p.up_votes,

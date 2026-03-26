@@ -11,24 +11,25 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <!-- User Navbar CSS -->
     {% load static %}
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{% static 'css/UserNavbar.css' %}">
     
     <style>
         /* --- Base Styles & Variables --- */
         :root {
-            --foreground: #0f172a;
-            --muted-foreground: #64748b;
-            --card-bg: #ffffff;
-            --border-color: #e2e8f0;
-            --primary: #0f172a;
-            --success: #16a34a;
-            --destructive: #dc2626;
-            --secondary-bg: #f1f5f9;
+            --foreground: #f8fafc;
+            --muted-foreground: #94a3b8;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --border-color: rgba(59, 130, 246, 0.3);
+            --primary: #3b82f6;
+            --success: #22c55e;
+            --destructive: #ef4444;
+            --secondary-bg: rgba(15, 23, 42, 0.6);
         }
 
         body {
-            background-color: #ffffff;
-            font-family: system-ui, -apple-system, sans-serif;
+            background-color: transparent;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
             color: var(--foreground);
             min-height: 100vh;
         }
@@ -67,7 +68,7 @@
         }
 
         .prediction-summary-box {
-            background-color: rgba(241, 245, 249, 0.5); /* secondary/50 */
+            background-color: rgba(15, 23, 42, 0.6); /* dark bg */
             border: 1px solid var(--border-color);
             border-radius: 0.75rem;
             padding: 1rem;
@@ -78,7 +79,8 @@
             border: 1px solid var(--border-color);
             border-radius: 1rem;
             padding: 1.5rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(12px);
         }
 
         /* Form Controls */
@@ -86,17 +88,31 @@
             font-size: 0.875rem;
             font-weight: 500;
             margin-bottom: 0.5rem;
+            color: #93c5fd;
+            text-transform: uppercase;
+            font-family: monospace;
+            letter-spacing: 0.05em;
         }
 
         .form-select-custom, .form-control-custom {
-            border-color: var(--border-color);
+            border-color: rgba(71, 85, 105, 0.8);
+            background-color: rgba(15, 23, 42, 0.8);
+            color: white;
             padding: 0.75rem 1rem;
             font-size: 0.875rem;
             border-radius: 0.375rem;
+            font-family: monospace;
         }
         .form-select-custom:focus, .form-control-custom:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.1);
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+            background-color: rgba(15, 23, 42, 0.9);
+            color: white;
+        }
+        
+        .form-control-custom::placeholder {
+            color: #94a3b8 !important;
+            opacity: 1;
         }
 
         .btn-submit {
@@ -145,7 +161,10 @@
         }
     </style>
 </head>
-<body>
+<body class="bg-transparent text-slate-200" style="min-height: 100vh; display: flex; flex-direction: column;">
+    <!-- Futuristic Animated Background (Vanta.js Net) -->
+    <div id="vanta-bg" class="fixed inset-0" style="z-index: -20;"></div>
+    <div class="fixed inset-0 bg-slate-900/60 pointer-events-none" style="z-index: -10;"></div>
 
     <!-- Navbar Component -->
     <!-- Navbar Component -->
@@ -230,23 +249,23 @@
 
             container.innerHTML = `
                 <!-- Back Link -->
-                <a href="/prediction/${currentPrediction.id}" class="text-decoration-none text-muted-foreground d-inline-flex align-items-center mb-4 small">
+                <a href="/prediction/${currentPrediction.id}" class="text-decoration-none text-blue-400 hover:text-blue-300 d-inline-flex align-items-center mb-4 small font-monospace text-uppercase transition-colors">
                     <i class="bi bi-arrow-left me-2"></i> Back to prediction
                 </a>
 
                 <!-- Header -->
                 <div class="mb-4">
-                    <h1 class="h3 fw-bold mb-2">Provide Feedback</h1>
-                    <p class="text-muted-foreground">Help us improve the model by providing the correct label for this article.</p>
+                    <h1 class="h3 fw-bold mb-2 text-white font-monospace text-uppercase" style="text-shadow: 0 0 15px rgba(59,130,246,0.3);">Provide Feedback</h1>
+                    <p class="text-blue-200 opacity-75 small font-monospace">Help us improve the model by providing the correct label for this article.</p>
                 </div>
 
                 <!-- Summary Box -->
-                <div class="prediction-summary-box mb-4">
-                    <p class="small text-muted-foreground mb-2">Original Prediction</p>
-                    <p class="mb-2 text-truncate" style="max-width: 100%;">${currentPrediction.text}</p>
-                    <p class="small mb-0">
+                <div class="prediction-summary-box mb-4 shadow-[0_0_15px_rgba(59,130,246,0.1)]">
+                    <p class="small text-blue-400 mb-2 font-monospace text-uppercase tracking-wider"><i class="bi bi-cpu me-1"></i> Original Prediction</p>
+                    <p class="mb-2 text-truncate text-slate-300 font-monospace small" style="max-width: 100%;">${currentPrediction.text}</p>
+                    <p class="small mb-0 font-monospace text-slate-400">
                         Predicted as 
-                        <span class="${colorClass} fw-semibold">${currentPrediction.prediction}</span>
+                        <span class="${colorClass} fw-bold"> [ ${currentPrediction.prediction} ] </span>
                         with ${confidence}% confidence
                     </p>
                 </div>
@@ -257,7 +276,7 @@
                         
                         <!-- Label Select -->
                         <div class="mb-4">
-                            <label class="form-label">What is the correct label?</label>
+                            <label class="form-label"><i class="bi bi-sliders me-1"></i> What is the correct label?</label>
                             <select class="form-select form-select-custom" id="correctedLabel">
                                 <option value="Real" ${defaultCorrected === 'Real' ? 'selected' : ''}>Real - This news is authentic</option>
                                 <option value="Fake" ${defaultCorrected === 'Fake' ? 'selected' : ''}>Fake - This news is misinformation</option>
@@ -266,13 +285,13 @@
 
                         <!-- Notes Textarea -->
                         <div class="mb-4">
-                            <label for="note" class="form-label">Additional Notes (Optional)</label>
+                            <label for="note" class="form-label"><i class="bi bi-terminal me-1"></i> Additional Notes (Optional)</label>
                             <textarea class="form-control form-control-custom" id="note" rows="4" 
                                 placeholder="Why do you think the prediction is wrong? Any sources to verify?"></textarea>
                         </div>
 
                         <!-- Submit Button -->
-                        <button type="submit" class="btn-submit" id="submitBtn">
+                        <button type="submit" class="btn-submit bg-blue-600 hover:bg-blue-500 border border-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.4)] text-uppercase font-monospace tracking-wider transition-all" id="submitBtn">
                             <i class="bi bi-send-fill" style="font-size: 0.875rem;"></i>
                             <span>Submit Correction</span>
                             <div class="spinner-border spinner-border-sm text-light ms-2 d-none" id="btnSpinner" role="status">
@@ -290,12 +309,12 @@
         function renderSuccess(container) {
             container.innerHTML = `
                 <div class="text-center py-5 animate-fade-in">
-                    <div class="success-icon-circle">
-                        <i class="bi bi-check-circle-fill"></i>
+                    <div class="success-icon-circle bg-green-900/40 border border-green-500/50 shadow-[0_0_20px_rgba(34,197,94,0.3)]">
+                        <i class="bi bi-check-circle-fill text-green-400"></i>
                     </div>
-                    <h1 class="h3 fw-bold mb-2">Thank You!</h1>
-                    <p class="text-muted-foreground mb-4">Your feedback has been submitted and will help improve our model.</p>
-                    <a href="/predictions" class="btn btn-dark px-4 py-2">View All Predictions</a>
+                    <h1 class="h3 fw-bold mb-2 text-white font-monospace text-uppercase">Thank You!</h1>
+                    <p class="text-blue-200 opacity-75 mb-4 font-monospace">Your feedback has been submitted and will help improve our model.</p>
+                    <a href="/predictions" class="btn btn-primary bg-blue-600 border border-blue-400 px-4 py-2 font-monospace text-uppercase text-sm shadow-[0_0_15px_rgba(59,130,246,0.3)] hover:bg-blue-500 transition-colors">View All Predictions</a>
                 </div>
             `;
         }
@@ -361,6 +380,27 @@
 
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Navbar Logic -->
+    
+    <!-- Vanta.js Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>
+    <script>
+        VANTA.NET({
+            el: "#vanta-bg",
+            mouseControls: true,
+            touchControls: true,
+            gyroControls: false,
+            minHeight: 200.00,
+            minWidth: 200.00,
+            scale: 1.00,
+            scaleMobile: 1.00,
+            color: 0x3b82f6,
+            backgroundColor: 0x0f172a,
+            points: 12.00,
+            maxDistance: 22.00,
+            spacing: 18.00,
+            showDots: true
+        });
+    </script>
 </body>
 </html>

@@ -1,11 +1,12 @@
 from django.contrib import admin
 from django.urls import path
-from detector.views import home, signup, login_view, feedback_view, vote, predictions_list, prediction_detail, profile_view, password_change_view
+from detector.views import home, check_news, signup, login_view, feedback_view, vote, predictions_list, prediction_detail, profile_view, password_change_view
 from detector import admin_views
 from django.contrib.auth.views import LogoutView
 
 urlpatterns = [
     path('', home, name='home'),
+    path('check-news/', check_news, name='check_news'),
     path('signup/', signup, name='signup'),
     path('login/', login_view, name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),

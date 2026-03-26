@@ -3,7 +3,6 @@ from django.contrib.auth.models import User
 
 class Prediction(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)  # Submitter
-    link_url = models.URLField(null=True, blank=True)
     text = models.TextField()
     prediction = models.CharField(max_length=10)  # 'Real' or 'Fake'
     confidence = models.FloatField()

@@ -167,10 +167,7 @@
                             <span id="viewCreated"></span>
                         </div>
                     </div>
-                    <div class="mb-3" id="viewLinkContainer">
-                         <label class="fw-bold">Source Link:</label>
-                         <a href="#" id="viewLink" target="_blank" class="text-primary text-decoration-underline">Open Link</a>
-                    </div>
+
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -251,11 +248,7 @@
                     <td class="px-6 py-4">
                         <div class="flex items-center gap-2">
                             <p class="text-sm font-medium text-gray-900 line-clamp-1 max-w-[240px]">${pred.text}</p>
-                            ${pred.linkUrl ? `
-                                <a href="${pred.linkUrl}" class="text-gray-400 hover:text-blue-600 transition-colors">
-                                    <i data-lucide="external-link" class="h-3.5 w-3.5"></i>
-                                </a>
-                            ` : ''}
+
                         </div>
                     </td>
                     <td class="px-6 py-4">
@@ -351,13 +344,7 @@
                     document.getElementById('viewVotesDown').textContent = p.votesDown;
                     document.getElementById('viewCreated').textContent = new Date(p.createdAt).toLocaleString();
                     
-                    const linkContainer = document.getElementById('viewLinkContainer');
-                    if(p.linkUrl) {
-                        linkContainer.style.display = 'block';
-                        document.getElementById('viewLink').href = p.linkUrl;
-                    } else {
-                        linkContainer.style.display = 'none';
-                    }
+
 
                     new bootstrap.Modal(document.getElementById('viewPredictionModal')).show();
                 } else {

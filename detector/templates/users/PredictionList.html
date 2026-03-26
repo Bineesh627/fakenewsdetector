@@ -4,249 +4,111 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>All Predictions - TruthGuard</title>
-    
-    <!-- Bootstrap 5 CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Bootstrap 5 CSS & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <!-- User Navbar CSS -->
-     {% load static %}
+    {% load static %}
     <link rel="stylesheet" href="{% static 'css/UserNavbar.css' %}">
-    
     <style>
-        /* --- Base Styles --- */
-        body {
-            background-color: #ffffff;
-            color: #0f172a; /* foreground */
-            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        body { padding-top: 4rem; background-color: #0f172a; font-family: 'Inter', system-ui, sans-serif; }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
         }
-
-        /* --- Utilities --- */
-        .text-muted-foreground { color: #64748b; }
-        .text-sm { font-size: 0.875rem; }
-        .text-xs { font-size: 0.75rem; }
-        .font-bold { font-weight: 700; }
-        .font-medium { font-weight: 500; }
-        
-        /* --- Card Components --- */
-        .card-filter {
-            background-color: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 0.75rem; /* rounded-xl */
-            padding: 1rem;
-        }
-
-        .prediction-card {
-            background-color: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 0.75rem;
-            padding: 1.25rem;
-            transition: all 0.2s ease;
-            margin-bottom: 1rem;
-            animation: fadeIn 0.5s ease forwards;
-            opacity: 0;
-        }
-        
-        .prediction-card:hover {
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            border-color: #cbd5e1;
-        }
-
-        /* --- Input & Select Styling --- */
-        .form-control, .form-select {
-            border-color: #e2e8f0;
-            padding: 0.5rem 0.75rem;
-            font-size: 0.875rem;
-        }
-        .form-control:focus, .form-select:focus {
-            border-color: #0f172a;
-            box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.1);
-        }
-
-        .input-group-text {
-            background: transparent;
-            border-right: none;
-            border-color: #e2e8f0;
-            color: #64748b;
-        }
-        .search-input {
-            border-left: none;
-        }
-
-        /* --- Badges --- */
-        .badge-custom {
-            font-weight: 600;
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            display: inline-flex;
-            align-items: center;
-        }
-        
-        .badge-real {
-            background-color: rgba(22, 163, 74, 0.1);
-            color: #16a34a; /* success */
-            border: 1px solid rgba(22, 163, 74, 0.2);
-        }
-        
-        .badge-fake {
-            background-color: rgba(220, 38, 38, 0.1);
-            color: #dc2626; /* destructive */
-            border: 1px solid rgba(220, 38, 38, 0.2);
-        }
-
-        .badge-flagged {
-            background: transparent;
-            color: #eab308; /* warning */
-            border: 1px solid rgba(234, 179, 8, 0.5);
-        }
-
-        /* --- Buttons --- */
-        .btn-vote {
-            background-color: #f1f5f9; /* secondary */
-            color: #0f172a;
-            border: 1px solid #e2e8f0;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.875rem;
-            font-weight: 500;
-            padding: 0.375rem 0.75rem;
-            transition: colors 0.2s;
-        }
-
-        .btn-vote-up:hover { color: #16a34a; background-color: #e2e8f0; }
-        .btn-vote-down:hover { color: #dc2626; background-color: #e2e8f0; }
-
-        .btn-outline-custom {
-            border: 1px solid #e2e8f0;
-            color: #0f172a;
-            background: transparent;
-        }
-        .btn-outline-custom:hover { background-color: #f1f5f9; }
-
-        /* --- Typography & Links --- */
-        .card-text-link {
-            color: #0f172a;
-            text-decoration: none;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            font-size: 1rem;
-            line-height: 1.5;
-        }
-        .card-text-link:hover { color: #2563eb; }
-
-        .source-link {
-            color: #2563eb; /* primary */
-            font-size: 0.75rem;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.25rem;
-        }
-        .source-link:hover { text-decoration: underline; }
-
-        /* --- Animations --- */
+        .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; opacity: 0; }
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(15px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        
+        /* Modern Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.8); }
+        ::-webkit-scrollbar-thumb { background: rgba(59, 130, 246, 0.5); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(59, 130, 246, 0.8); }
     </style>
 </head>
-<body>
+<body class="text-slate-200 bg-transparent relative min-h-screen flex flex-col">
+    <!-- Futuristic Animated Background (Vanta.js Net) -->
+    <div id="vanta-bg" class="fixed inset-0 -z-20"></div>
+    <div class="fixed inset-0 bg-slate-900/60 -z-10 pointer-events-none"></div>
 
-    <!-- Navbar Component -->
-    <!-- Navbar Component -->
     {% include 'users/UserNavbar.html' %}
 
-    <div class="container py-5">
-        <div class="mx-auto" style="max-width: 900px;">
-            
-            <!-- Header -->
-            <div class="mb-5">
-                <h1 class="display-6 font-bold mb-2">All Predictions</h1>
-                <p class="text-muted-foreground">Browse and vote on submitted news articles</p>
+    <main class="flex-grow container mx-auto px-4 py-8 max-w-5xl z-10">
+        <!-- Header -->
+        <div class="mb-8 text-center md:text-left">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-900/40 border border-blue-500/30 text-blue-300 mb-4 font-mono text-sm uppercase tracking-widest shadow-[0_0_15px_rgba(59,130,246,0.2)] mx-auto md:mx-0">
+                <i data-lucide="database" class="w-4 h-4"></i>
+                Global Neural Ledger
             </div>
+            <h1 class="text-3xl font-extrabold text-white mb-2 drop-shadow-[0_0_10px_rgba(59,130,246,0.3)]">Community Submissions</h1>
+            <p class="text-slate-300 text-lg">Browse and vote on articles checked by our AI</p>
+        </div>
 
-            <!-- Filter Controls -->
-            <div class="card-filter mb-5">
-                <div class="row g-3">
-                    <!-- Search -->
-                    <div class="col-md-6">
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="bi bi-search"></i></span>
-                            <input type="text" class="form-control search-input" id="searchInput" placeholder="Search predictions...">
-                        </div>
-                    </div>
-                    
-                    <!-- Filter Type -->
-                    <div class="col-6 col-md-3">
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="bi bi-funnel"></i></span>
-                            <select class="form-select" id="filterType">
-                                <option value="all">All</option>
-                                <option value="Real">Real Only</option>
-                                <option value="Fake">Fake Only</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Sort Order -->
-                    <div class="col-6 col-md-3">
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="bi bi-sort-down"></i></span>
-                            <select class="form-select" id="sortBy">
-                                <option value="newest">Newest</option>
-                                <option value="votes">Most Voted</option>
-                            </select>
-                        </div>
-                    </div>
+        <!-- Filters -->
+        <div class="glass-panel border-blue-500/20 rounded-2xl p-5 mb-8 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                <div class="md:col-span-6 relative">
+                    <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5"></i>
+                    <input type="text" id="searchInput" placeholder="Search parameters..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-600 bg-slate-900/60 text-white focus:bg-slate-800 focus:ring-1 focus:ring-blue-500 outline-none transition-all placeholder-slate-500">
+                </div>
+                <div class="md:col-span-3 relative">
+                    <i data-lucide="filter" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5"></i>
+                    <select id="filterType" class="w-full pl-10 pr-8 py-2.5 rounded-xl border border-slate-600 bg-slate-900/60 text-white focus:bg-slate-800 focus:ring-1 focus:ring-blue-500 outline-none appearance-none transition-all">
+                        <option value="all">Any Status</option>
+                        <option value="Real">Verified Real</option>
+                        <option value="Fake">Verified Fake</option>
+                    </select>
+                </div>
+                <div class="md:col-span-3 relative">
+                    <i data-lucide="arrow-down-up" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5"></i>
+                    <select id="sortBy" class="w-full pl-10 pr-8 py-2.5 rounded-xl border border-slate-600 bg-slate-900/60 text-white focus:bg-slate-800 focus:ring-1 focus:ring-blue-500 outline-none appearance-none transition-all">
+                        <option value="newest">Latest Chrono</option>
+                        <option value="votes">Highest Confidence</option>
+                    </select>
                 </div>
             </div>
-
-            <!-- Results Count -->
-            <p class="text-sm text-muted-foreground mb-3">
-                Showing <span id="resultsCount">0</span> predictions
-            </p>
-
-            <!-- Predictions List Container -->
-            <div id="predictionsList">
-                <!-- Javascript will populate this -->
-            </div>
-
-            <!-- No Results State -->
-            <div id="noResults" class="text-center py-5 card-filter d-none">
-                <p class="text-muted-foreground mb-3">No predictions found matching your criteria.</p>
-                <button class="btn btn-outline-custom" id="clearFiltersBtn">
-                    Clear Filters
-                </button>
-            </div>
-
         </div>
-    </div>
 
-    <!-- JavaScript Logic -->
+        <div class="mb-4 text-sm font-medium text-slate-400 flex items-center justify-between">
+            <span>Query returned <span id="resultsCount" class="text-white font-bold px-2 bg-blue-900/40 rounded border border-blue-500/30">0</span> nodes</span>
+        </div>
+
+        <!-- Results Grid -->
+        <div id="predictionsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- JS populated -->
+        </div>
+
+        <!-- No Results -->
+        <div id="noResults" class="hidden glass-panel rounded-2xl p-12 text-center mt-6 border border-slate-700/50">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-800 mb-4 border border-slate-600">
+                <i data-lucide="server-off" class="w-8 h-8 text-blue-400"></i>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2">No data nodes found</h3>
+            <p class="text-slate-400 mb-6">Insufficient data matching current search matrix parameters.</p>
+            <button id="clearFiltersBtn" class="px-6 py-2.5 bg-blue-600/20 text-blue-300 border border-blue-500/50 font-mono text-sm uppercase rounded-xl hover:bg-blue-600/40 transition-colors">
+                Reset Matrix
+            </button>
+        </div>
+    </main>
+
     <script>
-        // --- Mock Data ---
-        // --- Real Data from Backend ---
         const rawPredictions = JSON.parse("{{ predictions_json|escapejs }}");
         
-        // Convert ISO date strings to Date objects
         const mockPredictions = rawPredictions.map(p => ({
             ...p,
             createdAt: new Date(p.createdAt)
         }));
 
-        // --- State ---
-        const state = {
-            searchQuery: '',
-            filterType: 'all',
-            sortBy: 'newest'
-        };
+        const state = { searchQuery: '', filterType: 'all', sortBy: 'newest' };
 
-        // --- DOM Elements ---
         const predictionsListEl = document.getElementById('predictionsList');
         const searchInputEl = document.getElementById('searchInput');
         const filterTypeEl = document.getElementById('filterType');
@@ -255,84 +117,58 @@
         const noResultsEl = document.getElementById('noResults');
         const clearFiltersBtn = document.getElementById('clearFiltersBtn');
 
-        // --- Core Functions ---
-
         function filterAndSortPredictions() {
-            // Filter
             let filtered = mockPredictions.filter(p => {
                 const matchesSearch = p.text.toLowerCase().includes(state.searchQuery.toLowerCase());
                 const matchesFilter = state.filterType === 'all' || p.prediction === state.filterType;
                 return matchesSearch && matchesFilter;
             });
 
-            // Sort
             filtered.sort((a, b) => {
-                if (state.sortBy === 'newest') {
-                    return b.createdAt.getTime() - a.createdAt.getTime();
-                } else {
-                    // Sort by net score (votesUp - votesDown)
-                    const scoreA = a.votesUp - a.votesDown;
-                    const scoreB = b.votesUp - b.votesDown;
-                    return scoreB - scoreA;
-                }
+                if (state.sortBy === 'newest') return b.createdAt.getTime() - a.createdAt.getTime();
+                else return (b.votesUp - b.votesDown) - (a.votesUp - a.votesDown);
             });
 
             return filtered;
         }
 
         function renderPredictionCard(prediction, index) {
-            const confidencePercent = Math.round(prediction.confidence * 100);
+            const conf = Math.round(prediction.confidence * 100);
             const isReal = prediction.prediction === 'Real';
-            const badgeClass = isReal ? 'badge-real' : 'badge-fake';
+            const badgeBg = isReal ? 'bg-green-900/30 text-green-400 border-green-500/50 shadow-[0_0_10px_rgba(34,197,94,0.2)]' : 'bg-red-900/30 text-red-400 border-red-500/50 shadow-[0_0_10px_rgba(239,68,68,0.2)]';
             const dateStr = prediction.createdAt.toLocaleDateString();
-            
-            // Animation delay based on index
             const delay = index * 50;
 
-            // Optional Flagged Badge
-            const flaggedBadge = prediction.isCorrection 
-                ? `<span class="badge-custom badge-flagged ms-2"><i class="bi bi-exclamation-triangle me-1"></i> Flagged</span>` 
-                : '';
-
-            // Optional Link
-            const linkHtml = prediction.linkUrl 
-                ? `<a href="${prediction.linkUrl}" target="_blank" class="source-link mt-2">
-                     <i class="bi bi-box-arrow-up-right"></i> Source Link
-                   </a>` 
+            const flaggedStatus = prediction.isCorrection 
+                ? `<span class="px-2 py-1 rounded-md bg-amber-900/30 border border-amber-500/50 text-amber-400 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1"><i data-lucide="flag" class="w-3 h-3"></i> Flagged</span>` 
                 : '';
 
             return `
-                <article class="prediction-card" style="animation-delay: ${delay}ms">
-                    <!-- Header -->
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <div class="d-flex align-items-center gap-2">
-                            <span class="badge-custom ${badgeClass}">${prediction.prediction}</span>
-                            <span class="text-xs text-muted-foreground">${confidencePercent}% confidence</span>
+                <article class="glass-panel p-6 rounded-2xl hover:-translate-y-1 hover:border-blue-400/50 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all duration-300 animate-fade-in group flex flex-col h-full bg-slate-800/40" style="animation-delay: ${delay}ms">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex flex-col gap-1.5">
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-mono font-bold border ${badgeBg} w-max uppercase tracking-wider">
+                                [ ${prediction.prediction} ]
+                            </span>
+                            <span class="text-xs font-mono text-blue-400 opacity-80">${conf}% AI Certitude</span>
                         </div>
-                        ${flaggedBadge}
+                        ${flaggedStatus}
                     </div>
+                    
+                    <a href="/prediction/${prediction.id}" class="text-slate-200 text-sm font-medium line-clamp-3 mb-4 flex-grow hover:text-blue-400 transition-colors text-decoration-none focus:outline-none">
+                        ${prediction.text}
+                    </a>
 
-                    <!-- Body -->
-                    <div class="mb-3">
-                        <a href="/prediction/${prediction.id}" class="card-text-link">
-                            ${prediction.text}
-                        </a>
-                        ${linkHtml}
-                    </div>
-
-                    <!-- Footer -->
-                    <div class="d-flex justify-content-between align-items-center pt-3 border-top">
-                        <div class="text-xs text-muted-foreground d-flex align-items-center gap-1">
-                            <i class="bi bi-clock"></i> ${dateStr}
+                    <div class="flex items-center justify-between pt-4 border-t border-slate-700/50 mt-auto">
+                        <div class="text-[10px] uppercase tracking-wider text-slate-500 font-mono font-medium flex items-center gap-1">
+                            <i data-lucide="terminal" class="w-3.5 h-3.5 mt-px"></i> LOG: ${dateStr}
                         </div>
-                        <div class="d-flex gap-2">
-                            <button class="btn btn-sm btn-vote btn-vote-up" onclick="handleVote('${prediction.id}', 'up')">
-                                <i class="bi bi-hand-thumbs-up"></i>
-                                <span>${prediction.votesUp}</span>
+                        <div class="flex gap-2">
+                            <button onclick="handleVote('${prediction.id}', 'up')" class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-800/80 border border-slate-700 text-slate-400 hover:text-green-400 hover:border-green-500/50 transition-colors text-xs font-mono">
+                                <i data-lucide="chevron-up" class="w-3.5 h-3.5"></i> ${prediction.votesUp}
                             </button>
-                            <button class="btn btn-sm btn-vote btn-vote-down" onclick="handleVote('${prediction.id}', 'down')">
-                                <i class="bi bi-hand-thumbs-down"></i>
-                                <span>${prediction.votesDown}</span>
+                            <button onclick="handleVote('${prediction.id}', 'down')" class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-800/80 border border-slate-700 text-slate-400 hover:text-red-400 hover:border-red-500/50 transition-colors text-xs font-mono">
+                                <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i> ${prediction.votesDown}
                             </button>
                         </div>
                     </div>
@@ -342,62 +178,57 @@
 
         function render() {
             const predictions = filterAndSortPredictions();
-            
-            // Update Count
             resultsCountEl.textContent = predictions.length;
 
             if (predictions.length === 0) {
                 predictionsListEl.innerHTML = '';
-                noResultsEl.classList.remove('d-none');
+                noResultsEl.classList.remove('hidden');
             } else {
-                noResultsEl.classList.add('d-none');
-                predictionsListEl.innerHTML = predictions.map((p, index) => renderPredictionCard(p, index)).join('');
+                noResultsEl.classList.add('hidden');
+                predictionsListEl.innerHTML = predictions.map((p, i) => renderPredictionCard(p, i)).join('');
+                lucide.createIcons();
             }
         }
 
-        // --- Event Listeners ---
-
-        searchInputEl.addEventListener('input', (e) => {
-            state.searchQuery = e.target.value;
-            render();
-        });
-
-        filterTypeEl.addEventListener('change', (e) => {
-            state.filterType = e.target.value;
-            render();
-        });
-
-        sortByEl.addEventListener('change', (e) => {
-            state.sortBy = e.target.value;
-            render();
-        });
+        searchInputEl.addEventListener('input', e => { state.searchQuery = e.target.value; render(); });
+        filterTypeEl.addEventListener('change', e => { state.filterType = e.target.value; render(); });
+        sortByEl.addEventListener('change', e => { state.sortBy = e.target.value; render(); });
 
         clearFiltersBtn.addEventListener('click', () => {
-            state.searchQuery = '';
-            state.filterType = 'all';
-            
-            // Reset Inputs
-            searchInputEl.value = '';
-            filterTypeEl.value = 'all';
-            
+            state.searchQuery = ''; state.filterType = 'all';
+            searchInputEl.value = ''; filterTypeEl.value = 'all';
             render();
         });
 
-        // Real Vote Handler - redirects to backend view
         window.handleVote = function(id, type) {
-             // Construct the URL: /vote/<id>/<type>/
-             // This hits the Django view. 
-             // If not logged in -> @login_required redirects to login -> then back here.
              window.location.href = `/vote/${id}/${type.toUpperCase()}/`;
         };
 
-        // --- Initial Render ---
+
         render();
-
     </script>
-
-    <!-- Bootstrap JS Bundle -->
+    
+    <!-- Vanta.js Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>
+    <script>
+        VANTA.NET({
+            el: "#vanta-bg",
+            mouseControls: true,
+            touchControls: true,
+            gyroControls: false,
+            minHeight: 200.00,
+            minWidth: 200.00,
+            scale: 1.00,
+            scaleMobile: 1.00,
+            color: 0x3b82f6,
+            backgroundColor: 0x0f172a,
+            points: 12.00,
+            maxDistance: 22.00,
+            spacing: 18.00,
+            showDots: true
+        });
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Navbar Logic -->
 </body>
 </html>

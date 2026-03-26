@@ -8,6 +8,7 @@ __pycache__/
 
 # Custum remove
 model/
+media/
 dataset/
 
 # Distribution / packaging

@@ -1,28 +1,33 @@
 {% load static %}
 <!-- Navbar Component -->
-<nav class="navbar-custom">
-    <div class="container navbar-content">
+<nav class="navbar-custom" style="background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(59, 130, 246, 0.2); position: fixed; width: 100%; z-index: 50; top: 0;">
+    <div class="container navbar-content py-3">
         
         <!-- 1. Logo -->
-        <a href="/" class="logo-link">
-            <div class="logo-icon-box">
-                <i class="bi bi-shield-check text-dark"></i>
+        <a href="/" class="logo-link text-decoration-none d-flex align-items-center gap-2">
+            <div class="logo-icon-box" style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.5); width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 8px;">
+                <i class="bi bi-cpu text-blue-400"></i>
             </div>
-            <span class="fw-bold fs-5">TruthGuard</span>
+            <span class="fw-bold fs-5 text-white" style="letter-spacing: 1px; font-family: monospace;">TruthGuard.AI</span>
         </a>
 
         <!-- 2. Desktop Navigation (Hidden on Mobile) -->
         <div class="d-none d-md-flex align-items-center gap-4">
+            {% if not user.is_authenticated %}
             <a href="/" class="nav-link-custom {% if request.path == '/' %}active{% endif %}">Home</a>
+            {% endif %}
+            {% if user.is_authenticated %}
+            <a href="{% url 'check_news' %}" class="nav-link-custom {% if 'check-news' in request.path %}active{% endif %}">Check News</a>
+            {% endif %}
             <a href="{% url 'predictions_list' %}" class="nav-link-custom {% if 'predictions' in request.path %}active{% endif %}">All Predictions</a>
         </div>
 
         <!-- 3. Auth Section (Hidden on Mobile) -->
         <div class="d-none d-md-flex align-items-center gap-3" id="desktopAuthSection">
             {% if user.is_authenticated %}
-                <a href="{% url 'profile' %}" class="d-flex align-items-center gap-2 text-sm text-muted text-decoration-none" style="font-size: 0.875rem;">
-                    <i class="bi bi-person text-secondary"></i>
-                    <span class="fw-medium text-dark">{{ user.username }}</span>
+                <a href="{% url 'profile' %}" class="d-flex align-items-center gap-2 text-decoration-none nav-link-custom {% if 'profile' in request.path %}active{% endif %}" style="font-size: 0.875rem;">
+                    <i class="bi bi-person"></i>
+                    <span class="fw-medium">{{ user.username }}</span>
                 </a>
                 {% if user.is_staff %}
                     <a href="/admin" class="btn btn-outline-custom btn-sm">Admin Panel</a>
@@ -48,14 +53,19 @@
     <!-- 5. Mobile Menu Dropdown -->
     <div class="container mobile-menu" id="mobileMenu">
         <div class="d-flex flex-column gap-2">
+            {% if not user.is_authenticated %}
             <a href="/" class="mobile-nav-link {% if request.path == '/' %}active{% endif %}">Home</a>
+            {% endif %}
+            {% if user.is_authenticated %}
+            <a href="{% url 'check_news' %}" class="mobile-nav-link {% if 'check-news' in request.path %}active{% endif %}">Check News</a>
+            {% endif %}
             <a href="{% url 'predictions_list' %}" class="mobile-nav-link {% if 'predictions' in request.path %}active{% endif %}">All Predictions</a>
             
             <!-- Mobile Auth Section -->
             <div class="border-top pt-3 mt-2" id="mobileAuthSection">
                 {% if user.is_authenticated %}
-                    <a href="{% url 'profile' %}" class="d-flex align-items-center gap-2 mb-3 text-sm text-decoration-none">
-                        <i class="bi bi-person text-secondary"></i>
+                    <a href="{% url 'profile' %}" class="d-flex align-items-center gap-2 mb-3 text-decoration-none mobile-nav-link {% if 'profile' in request.path %}active{% endif %}" style="font-size: 0.875rem;">
+                        <i class="bi bi-person"></i>
                         <span class="fw-medium">{{ user.username }}</span>
                     </a>
                     <form action="{% url 'logout' %}" method="post">

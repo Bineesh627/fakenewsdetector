@@ -170,7 +170,6 @@ def admin_predictions(request):
         preds_data.append({
             'id': str(p.id),
             'text': p.text,
-            'linkUrl': p.link_url,
             'prediction': p.prediction,
             'confidence': p.confidence,
             'votesUp': p.votes_up,
@@ -347,8 +346,7 @@ def admin_get_prediction(request, pred_id):
             'confidence': p.confidence,
             'votesUp': p.votes_up,
             'votesDown': p.votes_down,
-            'createdAt': p.created_at.isoformat(),
-            'linkUrl': p.link_url
+            'createdAt': p.created_at.isoformat()
         }
         return JsonResponse({'success': True, 'prediction': data})
     except Prediction.DoesNotExist:
