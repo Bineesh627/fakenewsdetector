@@ -99,147 +99,126 @@
         <!-- Header -->
         <header>
             <h1 class="text-3xl font-bold tracking-tight text-gray-900">Settings</h1>
-            <p class="text-gray-500 mt-1">Configure application settings and preferences</p>
+            <p class="text-gray-500 mt-1">Update your admin profile and password</p>
         </header>
 
         <!-- Form Container -->
         <div class="space-y-6">
             
-            <!-- General Settings -->
-            <section class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="p-2 rounded-lg bg-blue-50">
-                        <i data-lucide="globe" class="h-5 w-5 text-blue-600"></i>
-                    </div>
-                    <div>
-                        <h2 class="text-lg font-semibold text-gray-900">General</h2>
-                        <p class="text-sm text-gray-500">Basic site configuration</p>
-                    </div>
+            {% if messages %}
+            <div class="space-y-2 mb-4">
+                {% for message in messages %}
+                <div class="p-4 text-sm rounded-lg {% if message.tags == 'error' %}bg-red-50 text-red-800 border border-red-200{% else %}bg-green-50 text-green-800 border border-green-200{% endif %}" role="alert">
+                    {{ message }}
                 </div>
-
-                <div class="space-y-4">
-                    <div class="space-y-2">
-                        <label for="siteName" class="text-sm font-medium text-gray-700">Site Name</label>
-                        <input type="text" id="siteName" value="TruthGuard" 
-                            class="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm">
-                    </div>
-                    <div class="space-y-2">
-                        <label for="siteDescription" class="text-sm font-medium text-gray-700">Site Description</label>
-                        <input type="text" id="siteDescription" value="AI-Powered Fake News Detection" 
-                            class="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm">
-                    </div>
-                </div>
-            </section>
-
-            <!-- Notification Settings -->
-            <section class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="p-2 rounded-lg bg-blue-50">
-                        <i data-lucide="bell" class="h-5 w-5 text-blue-600"></i>
-                    </div>
-                    <div>
-                        <h2 class="text-lg font-semibold text-gray-900">Notifications</h2>
-                        <p class="text-sm text-gray-500">Configure notification preferences</p>
-                    </div>
-                </div>
-
-                <div class="space-y-4">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-900">Email Notifications</p>
-                            <p class="text-xs text-gray-500">Receive email alerts for new feedback</p>
-                        </div>
-                        <label class="switch">
-                            <input type="checkbox" id="emailNotifications" checked>
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                    <div class="h-px bg-gray-100 w-full"></div>
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-900">Auto Moderation</p>
-                            <p class="text-xs text-gray-500">Automatically flag suspicious content</p>
-                        </div>
-                        <label class="switch">
-                            <input type="checkbox" id="autoModeration">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Security Settings -->
-            <section class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="p-2 rounded-lg bg-blue-50">
-                        <i data-lucide="shield" class="h-5 w-5 text-blue-600"></i>
-                    </div>
-                    <div>
-                        <h2 class="text-lg font-semibold text-gray-900">Security</h2>
-                        <p class="text-sm text-gray-500">Access and authentication settings</p>
-                    </div>
-                </div>
-
-                <div class="space-y-4">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-900">Public Submissions</p>
-                            <p class="text-xs text-gray-500">Allow anyone to submit news articles</p>
-                        </div>
-                        <label class="switch">
-                            <input type="checkbox" id="publicSubmissions" checked>
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                    <div class="h-px bg-gray-100 w-full"></div>
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-900">Require Authentication</p>
-                            <p class="text-xs text-gray-500">Users must be logged in to submit</p>
-                        </div>
-                        <label class="switch">
-                            <input type="checkbox" id="requireAuth" checked>
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Model Settings -->
-            <section class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="p-2 rounded-lg bg-blue-50">
-                        <i data-lucide="database" class="h-5 w-5 text-blue-600"></i>
-                    </div>
-                    <div>
-                        <h2 class="text-lg font-semibold text-gray-900">Model Configuration</h2>
-                        <p class="text-sm text-gray-500">AI model and processing settings</p>
-                    </div>
-                </div>
-
-                <div class="space-y-4">
-                    <div class="space-y-2">
-                        <label for="confidenceThreshold" class="text-sm font-medium text-gray-700">Confidence Threshold (%)</label>
-                        <input type="number" id="confidenceThreshold" value="75" min="50" max="100"
-                            class="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm">
-                        <p class="text-[10px] text-gray-400">Minimum confidence level to show prediction</p>
-                    </div>
-                    <div class="space-y-2">
-                        <label for="maxTextLength" class="text-sm font-medium text-gray-700">Maximum Text Length</label>
-                        <input type="number" id="maxTextLength" value="10000" min="1000" max="50000"
-                            class="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm">
-                        <p class="text-[10px] text-gray-400">Maximum characters allowed per submission</p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Action Area -->
-            <div class="flex justify-end pt-4">
-                <button id="save-btn" class="inline-flex items-center px-6 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-all shadow-md active:scale-95">
-                    <i data-lucide="save" class="h-4 w-4 mr-2"></i>
-                    Save Changes
-                </button>
+                {% endfor %}
             </div>
+            {% endif %}
+
+            <!-- Admin Profile Settings -->
+            <section class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                <form method="POST" action="{% url 'admin_settings' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="update_profile">
+                    
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="p-2 rounded-lg bg-blue-50">
+                                <i data-lucide="user" class="h-5 w-5 text-blue-600"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-semibold text-gray-900">Admin Profile</h2>
+                                <p class="text-sm text-gray-500">Update your personal information</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="space-y-2">
+                                    <label for="first_name" class="text-sm font-medium text-gray-700">First Name</label>
+                                    <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}" 
+                                        class="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm">
+                                </div>
+                                <div class="space-y-2">
+                                    <label for="last_name" class="text-sm font-medium text-gray-700">Last Name</label>
+                                    <input type="text" id="last_name" name="last_name" value="{{ user.last_name }}" 
+                                        class="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm">
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <label for="email" class="text-sm font-medium text-gray-700">Email Address <span class="text-red-500">*</span></label>
+                                <input type="email" id="email" name="email" value="{{ user.email }}" required
+                                    class="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 px-6 py-4 flex justify-end">
+                        <button type="submit" class="inline-flex items-center px-6 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-all shadow-md active:scale-95">
+                            <i data-lucide="save" class="h-4 w-4 mr-2"></i>
+                            Update Profile
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Password Change Setting -->
+            <section class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                <form method="POST" action="{% url 'admin_settings' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="change_password">
+                    
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="p-2 rounded-lg bg-blue-50">
+                                <i data-lucide="lock" class="h-5 w-5 text-blue-600"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-semibold text-gray-900">Change Password</h2>
+                                <p class="text-sm text-gray-500">Ensure your account is using a long, random password to stay secure</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div class="space-y-2">
+                                <label for="old_password" class="text-sm font-medium text-gray-700">Current Password</label>
+                                <div class="relative">
+                                    <input type="password" id="old_password" name="old_password" required
+                                        class="w-full px-3 py-2 pr-10 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm">
+                                    <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 toggle-password" data-target="old_password">
+                                        <i data-lucide="eye" class="h-4 w-4"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <label for="new_password" class="text-sm font-medium text-gray-700">New Password</label>
+                                <div class="relative">
+                                    <input type="password" id="new_password" name="new_password" required
+                                        class="w-full px-3 py-2 pr-10 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm">
+                                    <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 toggle-password" data-target="new_password">
+                                        <i data-lucide="eye" class="h-4 w-4"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <label for="confirm_password" class="text-sm font-medium text-gray-700">Confirm New Password</label>
+                                <div class="relative">
+                                    <input type="password" id="confirm_password" name="confirm_password" required
+                                        class="w-full px-3 py-2 pr-10 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm">
+                                    <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 toggle-password" data-target="confirm_password">
+                                        <i data-lucide="eye" class="h-4 w-4"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 px-6 py-4 flex justify-end">
+                        <button type="submit" class="inline-flex items-center px-6 py-2.5 bg-gray-900 text-white rounded-lg text-sm font-semibold hover:bg-gray-800 transition-all shadow-md active:scale-95">
+                            <i data-lucide="key" class="h-4 w-4 mr-2"></i>
+                            Change Password
+                        </button>
+                    </div>
+                </form>
+            </section>
         </div>
     </div>
 
@@ -250,52 +229,43 @@
         // Initialize Icons
         lucide.createIcons();
 
-        // Toast System
-        function showToast(title, description) {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = 'toast mb-3 bg-white border border-gray-200 rounded-xl shadow-2xl p-4 w-80 flex gap-3 items-start';
-            
-            toast.innerHTML = `
-                <div class="bg-green-100 p-1.5 rounded-full">
-                    <i data-lucide="check" class="h-4 w-4 text-green-600"></i>
-                </div>
-                <div>
-                    <h4 class="text-sm font-bold text-gray-900">${title}</h4>
-                    <p class="text-xs text-gray-500 mt-0.5">${description}</p>
-                </div>
-            `;
-            
-            container.appendChild(toast);
-            lucide.createIcons();
+        // Optional: Auto-hide django messages
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('[role="alert"]');
+            alerts.forEach(alert => {
+                alert.style.transition = 'opacity 0.5s ease';
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 500);
+            });
+        }, 5000);
 
-            // Auto-remove after 3 seconds
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translateY(20px)';
-                toast.style.transition = '0.3s';
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
-        }
-
-        // Handle Save
-        document.getElementById('save-btn').addEventListener('click', () => {
-            // Collect state (mimicking the settings object)
-            const settings = {
-                siteName: document.getElementById('siteName').value,
-                siteDescription: document.getElementById('siteDescription').value,
-                emailNotifications: document.getElementById('emailNotifications').checked,
-                autoModeration: document.getElementById('autoModeration').checked,
-                publicSubmissions: document.getElementById('publicSubmissions').checked,
-                requireAuth: document.getElementById('requireAuth').checked,
-                modelConfidenceThreshold: document.getElementById('confidenceThreshold').value,
-                maxTextLength: document.getElementById('maxTextLength').value,
-            };
-
-            console.log('Saving Settings:', settings);
-            
-            // Trigger UI feedback
-            showToast("Settings Saved", "Your changes have been saved successfully.");
+        // Toggle Password Visibility
+        document.querySelectorAll('.toggle-password').forEach(function(toggle) {
+            toggle.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                const input = document.getElementById(targetId);
+                const icon = this.tagName === 'I' ? this : this.querySelector('i');
+                
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    if (icon.hasAttribute('data-lucide')) {
+                        icon.setAttribute('data-lucide', 'eye-off');
+                        lucide.createIcons();
+                    } else {
+                        icon.classList.remove('bi-eye');
+                        icon.classList.add('bi-eye-slash');
+                    }
+                } else {
+                    input.type = 'password';
+                    if (icon.hasAttribute('data-lucide')) {
+                        icon.setAttribute('data-lucide', 'eye');
+                        lucide.createIcons();
+                    } else {
+                        icon.classList.remove('bi-eye-slash');
+                        icon.classList.add('bi-eye');
+                    }
+                }
+            });
         });
     </script>
     <!-- Sidebar Logic -->

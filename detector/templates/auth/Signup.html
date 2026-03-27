@@ -216,7 +216,8 @@
                         <div class="input-wrapper">
                             <i class="bi bi-lock input-icon"></i>
                             <input type="password" class="form-control custom-input" id="password" name="password"
-                                   placeholder="••••••••" required minlength="8">
+                                   placeholder="••••••••" required minlength="8" style="padding-right: 2.5rem;">
+                            <i class="bi bi-eye toggle-password" data-target="password" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; cursor: pointer; z-index: 5;"></i>
                         </div>
                         <p class="helper-text">Minimum 8 characters</p>
                     </div>
@@ -258,6 +259,35 @@
                 submitBtn.disabled = true;
                 btnText.textContent = 'Creating account...';
                 btnLoader.classList.remove('d-none');
+            });
+
+            // Toggle Password Visibility
+            document.querySelectorAll('.toggle-password').forEach(function(toggle) {
+                toggle.addEventListener('click', function() {
+                    const targetId = this.getAttribute('data-target');
+                    const input = document.getElementById(targetId);
+                    const icon = this.tagName === 'I' ? this : this.querySelector('i');
+                    
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        if (icon.hasAttribute('data-lucide')) {
+                            icon.setAttribute('data-lucide', 'eye-off');
+                            lucide.createIcons();
+                        } else {
+                            icon.classList.remove('bi-eye');
+                            icon.classList.add('bi-eye-slash');
+                        }
+                    } else {
+                        input.type = 'password';
+                        if (icon.hasAttribute('data-lucide')) {
+                            icon.setAttribute('data-lucide', 'eye');
+                            lucide.createIcons();
+                        } else {
+                            icon.classList.remove('bi-eye-slash');
+                            icon.classList.add('bi-eye');
+                        }
+                    }
+                });
             });
         });
     </script>
