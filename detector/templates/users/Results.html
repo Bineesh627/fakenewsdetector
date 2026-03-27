@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Analysis Result - TruthGuard</title>
     
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
@@ -16,14 +18,15 @@
     <style>
         /* --- Base Styles --- */
         body {
-            background-color: #ffffff;
+            background-color: transparent !important;
             font-family: system-ui, -apple-system, sans-serif;
-            color: #0f172a; /* text-foreground */
+            color: #e2e8f0;
             min-height: 100vh;
+            padding-top: 4rem;
         }
 
         /* --- Utilities --- */
-        .text-muted-foreground { color: #64748b; }
+        .text-muted-foreground { color: #94a3b8; }
         .font-bold { font-weight: 700; }
         .font-semibold { font-weight: 600; }
         .tracking-wide { letter-spacing: 0.05em; }
@@ -48,6 +51,7 @@
             align-items: center;
             justify-content: center;
             margin-bottom: 1.5rem;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
         }
         
         .result-icon-wrapper i {
@@ -57,35 +61,42 @@
         /* --- Color Schemes --- */
         /* Real / Success */
         .theme-real .result-icon-wrapper {
-            background-color: rgba(22, 163, 74, 0.1); /* bg-success/10 */
+            background-color: rgba(22, 163, 74, 0.2);
+            border: 1px solid rgba(22, 163, 74, 0.4);
         }
-        .theme-real .text-theme { color: #16a34a; }
-        .theme-real .bg-bar { background-color: #16a34a; }
+        .theme-real .text-theme { color: #4ade80; text-shadow: 0 0 10px rgba(74, 222, 128, 0.3); }
+        .theme-real .bg-bar { background-color: #22c55e; box-shadow: 0 0 10px rgba(34, 197, 94, 0.5); }
 
         /* Fake / Destructive */
         .theme-fake .result-icon-wrapper {
-            background-color: rgba(220, 38, 38, 0.1); /* bg-destructive/10 */
+            background-color: rgba(220, 38, 38, 0.2);
+            border: 1px solid rgba(220, 38, 38, 0.4);
         }
-        .theme-fake .text-theme { color: #dc2626; }
-        .theme-fake .bg-bar { background-color: #dc2626; }
+        .theme-fake .text-theme { color: #f87171; text-shadow: 0 0 10px rgba(248, 113, 113, 0.3); }
+        .theme-fake .bg-bar { background-color: #ef4444; box-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
 
         /* --- Cards --- */
         .content-card {
-            background-color: #ffffff;
-            border: 1px solid #e2e8f0;
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(59, 130, 246, 0.2);
             border-radius: 0.75rem;
             padding: 1.5rem;
             text-align: left;
             margin-bottom: 2rem;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            color: #e2e8f0;
         }
 
         /* --- Progress Bar --- */
         .progress-track {
             height: 1rem;
-            background-color: #f1f5f9; /* secondary */
+            background-color: rgba(15, 23, 42, 0.6);
             border-radius: 9999px;
             overflow: hidden;
             width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .progress-fill {
@@ -108,22 +119,26 @@
         }
 
         .btn-outline-custom {
-            border: 1px solid #e2e8f0;
-            background: white;
-            color: #0f172a;
+            border: 1px solid rgba(59, 130, 246, 0.5);
+            background: rgba(30, 41, 59, 0.6);
+            color: #e2e8f0 !important;
         }
-        .btn-outline-custom:hover { background-color: #f1f5f9; }
+        .btn-outline-custom:hover { background-color: rgba(59, 130, 246, 0.2); color: white !important;}
 
         .btn-dark-custom {
-            background-color: #0f172a;
-            color: white;
+            background-color: #2563eb;
+            color: white !important;
             border: none;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
         }
-        .btn-dark-custom:hover { background-color: #1e293b; }
+        .btn-dark-custom:hover { background-color: #1d4ed8; color: white !important; }
 
     </style>
 </head>
-<body>
+<body class="text-slate-200 bg-transparent min-h-screen relative flex flex-col font-sans">
+    <!-- Futuristic Animated Background (Vanta.js Net) -->
+    <div id="vanta-bg" class="fixed inset-0" style="z-index: -20;"></div>
+    <div class="fixed inset-0 bg-slate-900/60 pointer-events-none" style="z-index: -10;"></div>
 
     <!-- Navbar Component -->
     {% include 'users/UserNavbar.html' %}
@@ -183,7 +198,7 @@
                     </h1>
 
                     <p class="fs-5 text-muted-foreground mb-5 animate-fade-in" style="animation-delay: 200ms">
-                        Confidence: <span class="fw-semibold text-dark">${confidencePercent}%</span>
+                        Confidence: <span class="fw-semibold text-white">${confidencePercent}%</span>
                     </p>
 
                     <!-- Analyzed Text Card -->
@@ -219,11 +234,11 @@
                             Do you agree?
                         </h2>
                         <div class="d-flex justify-content-center gap-3">
-                             <button class="btn btn-outline-success d-flex align-items-center gap-2 px-4 py-2" onclick="handleVote('up', '${prediction.id}')">
+                             <button class="btn d-flex align-items-center gap-2 px-4 py-2" style="border: 1px solid rgba(74, 222, 128, 0.5); color: #4ade80; background: rgba(22, 163, 74, 0.1);" onmouseover="this.style.background='rgba(22, 163, 74, 0.3)'" onmouseout="this.style.background='rgba(22, 163, 74, 0.1)'" onclick="handleVote('up', '${prediction.id}')">
                                 <i class="bi bi-hand-thumbs-up-fill"></i>
                                 <span class="fw-bold">${prediction.votesUp}</span>
                             </button>
-                            <button class="btn btn-outline-danger d-flex align-items-center gap-2 px-4 py-2" onclick="handleVote('down', '${prediction.id}')">
+                            <button class="btn d-flex align-items-center gap-2 px-4 py-2" style="border: 1px solid rgba(248, 113, 113, 0.5); color: #f87171; background: rgba(220, 38, 38, 0.1);" onmouseover="this.style.background='rgba(220, 38, 38, 0.3)'" onmouseout="this.style.background='rgba(220, 38, 38, 0.1)'" onclick="handleVote('down', '${prediction.id}')">
                                 <i class="bi bi-hand-thumbs-down-fill"></i>
                                 <span class="fw-bold">${prediction.votesDown}</span>
                             </button>
@@ -242,7 +257,7 @@
 
                     <!-- Link -->
                     <div class="mt-4 animate-fade-in" style="animation-delay: 600ms">
-                        <a href="/prediction/${prediction.id}" class="text-decoration-none d-inline-flex align-items-center gap-1" style="font-size: 0.875rem;">
+                        <a href="/prediction/${prediction.id}" class="text-blue-400 hover:text-blue-300 text-decoration-none d-inline-flex align-items-center gap-1" style="font-size: 0.875rem;">
                             View full details <i class="bi bi-arrow-right"></i>
                         </a>
                     </div>
@@ -264,6 +279,34 @@
              // If not logged in -> @login_required redirects to login -> then back here.
              window.location.href = `/vote/${id}/${type.toUpperCase()}/`;
         };
+    </script>
+
+    </script>
+
+    <!-- Vanta.js Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>
+    <script>
+        VANTA.NET({
+            el: "#vanta-bg",
+            mouseControls: true,
+            touchControls: true,
+            gyroControls: false,
+            minHeight: 200.00,
+            minWidth: 200.00,
+            scale: 1.00,
+            scaleMobile: 1.00,
+            color: 0x3b82f6,
+            backgroundColor: 0x0f172a,
+            points: 12.00,
+            maxDistance: 22.00,
+            spacing: 18.00,
+            showDots: true
+        });
+        // Initialize Icons
+        if(typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
     </script>
 
     <!-- Bootstrap JS Bundle -->
